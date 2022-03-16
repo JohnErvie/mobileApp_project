@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {Button, StyleSheet, Text, View} from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import {AuthContext} from '../context/AuthContext';
@@ -12,72 +12,25 @@ const screenWidth = Dimensions.get("window").width;
 
 const HomeScreen = () => {
   const {userInfo, setIsLoading, logout, timeInfo, pcInfo, getData} = useContext(AuthContext);
-/*
-  var timeInfo = [""];
-  var pcInfo = [0];
-
-  const refresh = () => {
-    var InsertAPIURL = `${BASE_URL}/pc_data.php`;
-
-    var headers = {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-    };
-
-    var Data={
-      user_id: userInfo.user_id,
-    };
-
-    fetch(InsertAPIURL, {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify(Data)
+  /*
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      getData();
     })
-    .then((response)=>response.json())
-    .then((response)=>
-      {
-        //alert(response[0].Message);
-        //console.log(response[0].Message);
-
-        var dataPC = response[0].power_consumption;
-        var dataTime = response[0].time;
-        if(dataPC != null || dataTime != null){
-          var newData = [];
-          for (let i = dataPC.length - 1; i >= 0; i--) {
-            //newData.push(parseFloat(data[i][0].slice(0, -3))); no decimal
-            newData.push(parseFloat(dataPC[i][0]));
-          }
-          pcInfo = newData;
-          
-          console.log(pcInfo);  
-          
-          
-          var newData = [];
-          for (let i = 0; i < dataTime.length; i++) {
-            newData.push(dataTime[i][0].slice(0,8));
-          }
-          timeInfo = newData;
-          
-          console.log(timeInfo);
-        }
-        else{
-          pcInfo = [0];
-          
-          console.log(pcInfo);
-
-          timeInfo = [""];
-          
-          console.log(timeInfo);
-        }
-
-        
-      })
-    .catch((error)=>{
-      console.log(`getting data error ${error}`);
-      })
-  };
+    // Update the document title using the browser API
+    
+  }, 1000);
 */
-
+  useEffect(() => {
+    const intervalId = setInterval(() => {  //assign interval to a variable to clear it.
+     getData();
+    }, 1000);
+  
+    return () => clearInterval(intervalId); //This is important
+   
+  }, []);
+  
+  
   return (
     <View style={styles.container}>
       <Spinner visible={setIsLoading} />
@@ -105,10 +58,9 @@ const HomeScreen = () => {
 
       <Text style={styles.welcome}>Welcome {userInfo.name}</Text>
       
-      <Button title="Refresh" color="blue" onPress={getData} />
       <Button title="Logout" color="red" onPress={logout} />
     </View>
-  );
+  ) ;
 };
 
 const styles = StyleSheet.create({

@@ -45,9 +45,9 @@ export const AuthProvider = ({children}) => {
           let userInfo = response[0].Data;
           setUserInfo(userInfo);
           AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
-          //getData();
           setIsLoading(false);
           console.log(userInfo);
+          //getData();
         })
       .catch((error)=>{
         console.log(`register error ${error}`);
@@ -87,8 +87,8 @@ export const AuthProvider = ({children}) => {
           console.log(userInfo);
           setUserInfo(userInfo);
           AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
-          //getData();
-          setIsLoading(false);            
+          setIsLoading(false);
+          //getData();            
         }
       })
     .catch((error)=>{
@@ -185,11 +185,11 @@ export const AuthProvider = ({children}) => {
         else{
           pcInfo = [0];
           setPCInfo(pcInfo);
-          console.log(pcInfo);
+          //console.log(pcInfo);
 
           timeInfo = [""];
           setTimeInfo(timeInfo);
-          console.log(timeInfo);
+          //console.log(timeInfo);
         }
 
         
@@ -219,6 +219,7 @@ export const AuthProvider = ({children}) => {
 
   useEffect(() => {
     isLoggedIn();
+    //getData();
   }, []);
 
   return (
