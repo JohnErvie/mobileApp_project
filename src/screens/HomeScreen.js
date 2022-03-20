@@ -1,8 +1,10 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {Button, StyleSheet, Text, View} from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import {AuthContext} from '../context/AuthContext';
-import {BASE_URL} from '../config';
+
+import {Picker} from '@react-native-picker/picker';
+
 
 import {
   LineChart,
@@ -10,33 +12,37 @@ import {
 import { Dimensions } from "react-native";
 const screenWidth = Dimensions.get("window").width;
 
-const HomeScreen = () => {
-  const {userInfo, setIsLoading, logout, timeInfo, pcInfo, getData} = useContext(AuthContext);
-  /*
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      getData();
-    })
-    // Update the document title using the browser API
-    
-  }, 1000);
-*/
+const HomeScreen = ({ navigation }) => {
+  const {userInfo, setIsLoading, logout, 
+    timeInfo, pcInfo, getData_sec, getData_min, 
+    getData_hr, pickerVal, displayTime, displayGraph} = useContext(AuthContext);
+
   useEffect(() => {
     const intervalId = setInterval(() => {  //assign interval to a variable to clear it.
-     getData();
-    }, 1000);
-  
+      //console.log(pickerVal[0]);
+      displayGraph(pickerVal[0]);
+      
+    }, 1000); //refresh in 1.5 second
+     
     return () => clearInterval(intervalId); //This is important
    
   }, []);
-  
+
+ 
   
   return (
     <View style={styles.container}>
       <Spinner visible={setIsLoading} />
-      <Text style={styles.welcome}>Aggregated Data (by seconds)</Text>
+      <Text style={styles.welcome}>Aggregated Data (by {pickerVal[0]})</Text>
 
-
+      <Picker style={{ height: 50, width: 150 }}
+        onValueChange = {displayTime}
+        selectedValue = {pickerVal[0]}
+        >
+        <Picker.Item label="Second" value="Second" />
+        <Picker.Item label="Minute" value="Minute" />
+        <Picker.Item label="Hour" value="Hour" />
+      </Picker>
       
       <LineChart
         data={{
@@ -54,11 +60,6 @@ const HomeScreen = () => {
         height={220}
         chartConfig={chartConfig}
       />
-      
-
-      <Text style={styles.welcome}>Welcome {userInfo.name}</Text>
-      
-      <Button title="Logout" color="red" onPress={logout} />
     </View>
   ) ;
 };
@@ -66,8 +67,8 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    //alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   welcome: {
     fontSize: 18,

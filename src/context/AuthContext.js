@@ -12,6 +12,27 @@ export const AuthProvider = ({children}) => {
   const [splashLoading, setSplashLoading] = useState(false);
   var [timeInfo, setTimeInfo] = useState([""]);
   var [pcInfo, setPCInfo] = useState([0]); // pc = power consumption
+  var [pickerVal, setPickerVal] = useState(["Second"]);
+
+  const displayTime = (option) =>{
+    pickerVal[0] = option;
+    
+    setPickerVal(pickerVal);
+    //console.log(pickerVal);
+  }
+
+  const displayGraph = (Val) =>{
+    //console.log(pickerVal);
+    if(Val == "Second"){
+      return getData_sec();
+    }
+    else if(Val == "Minute"){
+      return getData_min();
+    }
+    else if(Val == "Hour"){
+      return getData_hr();
+    }
+  }
 
   const register = (name, email, password) => {
     setIsLoading(true);
@@ -138,7 +159,8 @@ export const AuthProvider = ({children}) => {
       })
   };
 
-  const getData = () => {
+  // getting data in second
+  const getData_sec = () => {
     var InsertAPIURL = `${BASE_URL}/pc_data.php`;
 
     var headers = {
@@ -163,7 +185,8 @@ export const AuthProvider = ({children}) => {
 
         var dataPC = response[0].power_consumption;
         var dataTime = response[0].time;
-        if(dataPC != null || dataTime != null){
+        
+        if(dataPC.length > 0 || dataTime.length > 0){ 
           var newData = [];
           for (let i = dataPC.length - 1; i >= 0; i--) {
             //newData.push(parseFloat(data[i][0].slice(0, -3))); no decimal
@@ -171,7 +194,7 @@ export const AuthProvider = ({children}) => {
           }
           pcInfo = newData;
           setPCInfo(pcInfo);
-          console.log(pcInfo);  
+          //console.log(pcInfo);  
           
           
           var newData = [];
@@ -180,7 +203,159 @@ export const AuthProvider = ({children}) => {
           }
           timeInfo = newData;
           setTimeInfo(timeInfo);
-          console.log(timeInfo);
+          //console.log(timeInfo);
+        }
+        else{
+          pcInfo = [0];
+          setPCInfo(pcInfo);
+          //console.log(pcInfo);
+
+          timeInfo = [""];
+          setTimeInfo(timeInfo);
+          //console.log(timeInfo);
+        }
+
+        
+      })
+    .catch((error)=>{
+      console.log(`getting data error ${error}`);
+      })
+  };
+
+  // getting data in minutes
+  const getData_min = () => {
+    var InsertAPIURL = `${BASE_URL}/pc_data_min.php`;
+
+    var headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    };
+
+    var Data={
+      user_id: userInfo.user_id,
+    };
+
+    fetch(InsertAPIURL, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(Data)
+    })
+    .then((response)=>response.json())
+    .then((response)=>
+      {
+        //alert(response[0].Message);
+        //console.log(response[0].Message);
+
+        var dataPC = response[0].power_consumption;
+        var dataTime = response[0].time;
+        
+        if(dataPC.length > 0 || dataTime.length > 0){ 
+          var newDataPC = [];
+          var newDataMin = [];
+          
+
+          var curMin = dataTime[0][0].slice(0,5); //save the first value of Minute
+          var curPC = 0;
+
+          for(let i = 0; i < dataTime.length; i++){
+            if (dataTime[i][0].slice(0,5) == curMin){
+              curPC += parseFloat(dataPC[i][0]);
+              
+            }
+            else{
+              //console.log(i);
+              newDataMin.push(curMin); // save the current minute before changing
+              newDataPC.push(curPC);
+              curMin = dataTime[i][0].slice(0,5);
+              curPC = 0;
+              curPC += parseFloat(dataPC[i][0]);
+            }
+          }
+          
+
+          pcInfo = newDataPC;
+          setPCInfo(pcInfo);
+          //console.log(pcInfo); 
+
+          timeInfo = newDataMin;
+          setTimeInfo(timeInfo);
+          //console.log(timeInfo);
+        }
+        else{
+          pcInfo = [0];
+          setPCInfo(pcInfo);
+          //console.log(pcInfo);
+
+          timeInfo = [""];
+          setTimeInfo(timeInfo);
+          //console.log(timeInfo);
+        }
+
+        
+      })
+    .catch((error)=>{
+      console.log(`getting data error ${error}`);
+      })
+  };
+
+  // getting data in hours
+  const getData_hr = () => {
+    var InsertAPIURL = `${BASE_URL}/pc_data_hr.php`;
+
+    var headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    };
+
+    var Data={
+      user_id: userInfo.user_id,
+    };
+
+    fetch(InsertAPIURL, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(Data)
+    })
+    .then((response)=>response.json())
+    .then((response)=>
+      {
+        //alert(response[0].Message);
+        //console.log(response[0].Message);
+
+        var dataPC = response[0].power_consumption;
+        var dataTime = response[0].time;
+        
+        if(dataPC.length > 0 || dataTime.length > 0){ 
+          var newDataPC = [];
+          var newDataMin = [];
+          
+
+          var curMin = dataTime[0][0].slice(0,2); //save the first value of Minute
+          var curPC = 0;
+
+          for(let i = 0; i < dataTime.length; i++){
+            if (dataTime[i][0].slice(0,2) == curMin){
+              curPC += parseFloat(dataPC[i][0]);
+              
+            }
+            else{
+              //console.log(i);
+              newDataMin.push(curMin); // save the current minute before changing
+              newDataPC.push(curPC);
+              curMin = dataTime[i][0].slice(0,2);
+              curPC = 0;
+              curPC += parseFloat(dataPC[i][0]);
+            }
+          }
+          
+
+          pcInfo = newDataPC;
+          setPCInfo(pcInfo);
+          //console.log(pcInfo); 
+
+          timeInfo = newDataMin;
+          setTimeInfo(timeInfo);
+          //console.log(timeInfo);
         }
         else{
           pcInfo = [0];
@@ -230,10 +405,15 @@ export const AuthProvider = ({children}) => {
         timeInfo,
         pcInfo,
         splashLoading,
+        pickerVal,
         register,
         login,
         logout,
-        getData,
+        getData_sec,
+        getData_min,
+        getData_hr,
+        displayTime,
+        displayGraph,
       }}>
       {children}
     </AuthContext.Provider>
