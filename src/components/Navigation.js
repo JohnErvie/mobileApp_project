@@ -7,6 +7,7 @@ import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import AboutScreen from '../screens/AboutScreen';
+import ConnectScreen from '../screens/ConnectScreen';
 import {AuthContext} from '../context/AuthContext';
 import SplashScreen from '../screens/SplashScreen';
 
@@ -70,7 +71,7 @@ const styles = StyleSheet.create({
 });
 
 const Navigation = () => {
-  const {userInfo, splashLoading} = useContext(AuthContext);
+  const {userInfo, rpiInfo, splashLoading} = useContext(AuthContext);
 
   return (
     <Stack.Navigator>
@@ -81,14 +82,19 @@ const Navigation = () => {
           options={{headerShown: false}}
         />
       ) : userInfo.status ? (
-        
-        <Stack.Screen 
+        rpiInfo.ip_address ? (
+          <Stack.Screen 
           name="HomeStack" 
           component={DrawerNavigator} 
           options={{headerShown: false}}
           />
-        
-      
+          ) : (
+          <Stack.Screen
+            name="Connect"
+            component={ConnectScreen}
+            options={{headerShown: false}}
+          />
+          )
       ) : (
         <>
           <Stack.Screen

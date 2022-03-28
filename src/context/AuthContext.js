@@ -14,6 +14,11 @@ export const AuthProvider = ({children}) => {
   var [pcInfo, setPCInfo] = useState([0]); // pc = power consumption
   var [pickerVal, setPickerVal] = useState(["Second"]);
 
+  //const [globalInfo, setGlobalInfo] = useState({});
+  const [rpiInfo, setRpiInfo] = useState({});
+  const [isConnected, setIsConnected] = useState(false);
+  var [ipAddress, setIpAddress] = useState("");
+
   const displayTime = (option) =>{
     pickerVal[0] = option;
     
@@ -67,7 +72,7 @@ export const AuthProvider = ({children}) => {
           setUserInfo(userInfo);
           AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
           setIsLoading(false);
-          console.log(userInfo);
+          console.log(userInfo.status);
           //getData();
         })
       .catch((error)=>{
@@ -149,7 +154,9 @@ export const AuthProvider = ({children}) => {
         if(response[0].Data != null){
           console.log(response[0].Data);
           AsyncStorage.removeItem('userInfo');
+          AsyncStorage.removeItem('rpiInfo');
           setUserInfo({});
+          setRpiInfo({});
           setIsLoading(false);            
         }
       })
@@ -260,10 +267,16 @@ export const AuthProvider = ({children}) => {
           for(let i = 0; i < dataTime.length; i++){
             if (dataTime[i][0].slice(0,5) == curMin){
               curPC += parseFloat(dataPC[i][0]);
+
+              if (i == dataTime.length - 1){ // save the remaining seconds
+                newDataMin.push(curMin); // save the current minute before changing
+                newDataPC.push(curPC);
+              }
               
             }
             else{
               //console.log(i);
+              //reset
               newDataMin.push(curMin); // save the current minute before changing
               newDataPC.push(curPC);
               curMin = dataTime[i][0].slice(0,5);
@@ -324,25 +337,29 @@ export const AuthProvider = ({children}) => {
 
         var dataPC = response[0].power_consumption;
         var dataTime = response[0].time;
-        
         if(dataPC.length > 0 || dataTime.length > 0){ 
           var newDataPC = [];
           var newDataMin = [];
           
 
-          var curMin = dataTime[0][0].slice(0,2); //save the first value of Minute
+          var curHr = dataTime[0][0].slice(0,2); //save the first value of Minute
           var curPC = 0;
 
           for(let i = 0; i < dataTime.length; i++){
-            if (dataTime[i][0].slice(0,2) == curMin){
+            if (dataTime[i][0].slice(0,2) == curHr){
               curPC += parseFloat(dataPC[i][0]);
               
+              if (i == dataTime.length - 1 ){ // save the remaining seconds
+                newDataMin.push(curHr); // save the current minute before changing
+                newDataPC.push(curPC);
+              }
+
             }
             else{
               //console.log(i);
-              newDataMin.push(curMin); // save the current minute before changing
+              newDataMin.push(curHr); // save the current minute before changing
               newDataPC.push(curPC);
-              curMin = dataTime[i][0].slice(0,2);
+              curHr = dataTime[i][0].slice(0,2);
               curPC = 0;
               curPC += parseFloat(dataPC[i][0]);
             }
@@ -374,6 +391,52 @@ export const AuthProvider = ({children}) => {
       })
   };
 
+  const connectRpi = (ip_address, user_id) => {
+    setIsLoading(true);
+
+    ipAddress = ip_address;
+    setIpAddress(ipAddress);
+    console.log(ipAddress);
+
+    var InsertAPIURL = `${BASE_URL}/connect_rpi.php`;
+
+    var headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    };
+
+    var Data={
+      ip_address: ip_address,
+      user_id: user_id,
+    };
+
+    fetch(InsertAPIURL, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(Data)
+    })
+    .then((response)=>response.json())
+    .then((response)=>
+      {
+        alert(response[0].Message);
+        console.log(response[0].Message);
+        if(response[0].Data != null){
+          let rpiInfo = response[0].Data;
+          console.log(rpiInfo);
+          setRpiInfo(rpiInfo);
+          AsyncStorage.setItem('rpiInfo', JSON.stringify(rpiInfo));
+          setIsLoading(false);
+          //getData();            
+        }
+      })
+    .catch((error)=>{
+      console.log(`connection error ${error}`);
+      setIsLoading(false);
+      })
+      
+    
+  };
+
   const isLoggedIn = async () => {
     try {
       setSplashLoading(true);
@@ -392,8 +455,27 @@ export const AuthProvider = ({children}) => {
     }
   };
 
+  const isConnectedIn = async () => {
+    try {
+      setSplashLoading(true);
+
+      let rpiInfo = await AsyncStorage.getItem('rpiInfo');
+      rpiInfo = JSON.parse(rpiInfo);
+
+      if (rpiInfo) {
+        setRpiInfo(rpiInfo);
+      }
+
+      setSplashLoading(false);
+    } catch (e) {
+      setSplashLoading(false);
+      console.log(`is rpi connection in error ${e}`);
+    }
+  };
+
   useEffect(() => {
     isLoggedIn();
+    isConnectedIn();
     //getData();
   }, []);
 
@@ -406,6 +488,8 @@ export const AuthProvider = ({children}) => {
         pcInfo,
         splashLoading,
         pickerVal,
+        rpiInfo,
+        ipAddress,
         register,
         login,
         logout,
@@ -414,6 +498,7 @@ export const AuthProvider = ({children}) => {
         getData_hr,
         displayTime,
         displayGraph,
+        connectRpi,
       }}>
       {children}
     </AuthContext.Provider>
