@@ -17,12 +17,14 @@ const screenWidth = Dimensions.get("window").width;
 const HomeScreen = ({ navigation }) => {
   const {userInfo, setIsLoading, logout, 
     timeInfo, pcInfo, getData_sec, getData_min, 
-    getData_hr, pickerVal, displayTime, displayGraph, rpiInfo} = useContext(AuthContext);
+    getData_hr, pickerVal, displayTime, displayGraph,
+    detectAnomaly, rpiInfo, currentStatus, setCurrentStatus} = useContext(AuthContext);
 
   useEffect(() => {
     const intervalId = setInterval(() => {  //assign interval to a variable to clear it.
       //console.log(pickerVal[0]);
       displayGraph(pickerVal[0]);
+      detectAnomaly();
       
     }, 1000); //refresh in 1 second
      
@@ -67,7 +69,7 @@ const HomeScreen = ({ navigation }) => {
           datasets: [
             {
               data: pcInfo,
-              color: (opacity = 1) => `rgba(134, 65, 244, ${opacity})`, // optional
+              color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`, // optional
               strokeWidth: 2 // optional
             }
           ],
@@ -76,6 +78,12 @@ const HomeScreen = ({ navigation }) => {
         width={screenWidth}
         height={220}
         chartConfig={chartConfig}
+        getDotColor={(dataPoint, dataPointIndex) => {
+          //console.log(currentStatus);
+          if(currentStatus[dataPointIndex] == "Anomaly") 
+          return '#ff0000';// red
+          else  return '#00ff00';// green
+        }}
       />
 
       <Button title="Test" color="blue" onPress={anomalyNotification} />

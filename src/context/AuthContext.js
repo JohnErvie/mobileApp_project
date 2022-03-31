@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, {createContext, useEffect, useState} from 'react';
 import {BASE_URL} from '../config';
 import { Alert } from "react-native";
+import PushNotification from "react-native-push-notification";
 
 
 export const AuthContext = createContext();
@@ -13,6 +14,9 @@ export const AuthProvider = ({children}) => {
   var [timeInfo, setTimeInfo] = useState([""]);
   var [pcInfo, setPCInfo] = useState([0]); // pc = power consumption
   var [pickerVal, setPickerVal] = useState(["Second"]);
+  var [lastAnomalyTime, setLastAnomalyTime] = useState();
+  var [currentStatus, setCurrentStatus] = useState([]);
+  var [getCurrentStatus, setGetCurrentStatus] = useState([]);
 
   //const [globalInfo, setGlobalInfo] = useState({});
   const [rpiInfo, setRpiInfo] = useState({});
@@ -37,6 +41,7 @@ export const AuthProvider = ({children}) => {
     else if(Val == "Hour"){
       return getData_hr();
     }
+
   }
 
   const register = (name, email, password) => {
@@ -192,13 +197,27 @@ export const AuthProvider = ({children}) => {
 
         var dataPC = response[0].power_consumption;
         var dataTime = response[0].time;
+        var status = response[0].status;
         
         if(dataPC.length > 0 || dataTime.length > 0){ 
           var newData = [];
+          
           for (let i = dataPC.length - 1; i >= 0; i--) {
             //newData.push(parseFloat(data[i][0].slice(0, -3))); no decimal
             newData.push(parseFloat(dataPC[i][0]));
+
+            if(status[i][0] == "Anomaly"){
+              getCurrentStatus.push("Anomaly");
+              
+            }
+            else{
+              getCurrentStatus.push("Normal");
+              
+            }
+            
           }
+          setGetCurrentStatus(getCurrentStatus);
+          
           pcInfo = newData;
           setPCInfo(pcInfo);
           //console.log(pcInfo);  
@@ -206,11 +225,12 @@ export const AuthProvider = ({children}) => {
           
           var newData = [];
           for (let i = 0; i < dataTime.length; i++) {
-            newData.push(dataTime[i][0].slice(0,8));
+            newData.push(dataTime[i][0].slice(6,8));
           }
           timeInfo = newData;
           setTimeInfo(timeInfo);
           //console.log(timeInfo);
+         
         }
         else{
           pcInfo = [0];
@@ -222,6 +242,11 @@ export const AuthProvider = ({children}) => {
           //console.log(timeInfo);
         }
 
+        currentStatus = getCurrentStatus;
+        setCurrentStatus(currentStatus);
+
+        getCurrentStatus = [];
+        setGetCurrentStatus(getCurrentStatus);
         
       })
     .catch((error)=>{
@@ -255,36 +280,61 @@ export const AuthProvider = ({children}) => {
 
         var dataPC = response[0].power_consumption;
         var dataTime = response[0].time;
+        var status = response[0].status;
+        //var message = response[0].Message;
+        var curStatus = 0;
         
         if(dataPC.length > 0 || dataTime.length > 0){ 
           var newDataPC = [];
           var newDataMin = [];
           
 
-          var curMin = dataTime[0][0].slice(0,5); //save the first value of Minute
+          var curMin = dataTime[0][0].slice(3,5); //save the first value of Minute
           var curPC = 0;
 
           for(let i = 0; i < dataTime.length; i++){
-            if (dataTime[i][0].slice(0,5) == curMin){
+            if (dataTime[i][0].slice(3,5) == curMin){
               curPC += parseFloat(dataPC[i][0]);
 
+              if (status[i][0] == "Anomaly"){
+                curStatus = 1;
+              }
+              
               if (i == dataTime.length - 1){ // save the remaining seconds
                 newDataMin.push(curMin); // save the current minute before changing
                 newDataPC.push(curPC);
+
+                if(curStatus == 1){
+                  getCurrentStatus.push("Anomaly");
+                }
+                else{
+                  getCurrentStatus.push("Normal");
+                }
+
               }
-              
+
             }
             else{
               //console.log(i);
               //reset
+
+              if(curStatus == 1){
+                getCurrentStatus.push("Anomaly");
+              }
+              else{
+                getCurrentStatus.push("Normal");
+              }
+              curStatus = 0;
+              
               newDataMin.push(curMin); // save the current minute before changing
               newDataPC.push(curPC);
-              curMin = dataTime[i][0].slice(0,5);
+              curMin = dataTime[i][0].slice(3,5);
               curPC = 0;
               curPC += parseFloat(dataPC[i][0]);
             }
+            
           }
-          
+          setGetCurrentStatus(getCurrentStatus);
 
           pcInfo = newDataPC;
           setPCInfo(pcInfo);
@@ -304,6 +354,11 @@ export const AuthProvider = ({children}) => {
           //console.log(timeInfo);
         }
 
+        currentStatus = getCurrentStatus;
+        setCurrentStatus(currentStatus);
+
+        getCurrentStatus = [];
+        setGetCurrentStatus(getCurrentStatus);
         
       })
     .catch((error)=>{
@@ -337,6 +392,10 @@ export const AuthProvider = ({children}) => {
 
         var dataPC = response[0].power_consumption;
         var dataTime = response[0].time;
+        var status = response[0].status;
+
+        var curStatus = 0;
+
         if(dataPC.length > 0 || dataTime.length > 0){ 
           var newDataPC = [];
           var newDataMin = [];
@@ -348,15 +407,38 @@ export const AuthProvider = ({children}) => {
           for(let i = 0; i < dataTime.length; i++){
             if (dataTime[i][0].slice(0,2) == curHr){
               curPC += parseFloat(dataPC[i][0]);
+
+              if (status[i][0] == "Anomaly"){
+                curStatus = 1;
+              }
               
               if (i == dataTime.length - 1 ){ // save the remaining seconds
                 newDataMin.push(curHr); // save the current minute before changing
                 newDataPC.push(curPC);
               }
 
+              if(curStatus == 1){
+                getCurrentStatus.push("Anomaly");
+              }
+              else{
+                getCurrentStatus.push("Normal");
+              }
+
+              
+
             }
             else{
               //console.log(i);
+
+              if(curStatus == 1){
+                getCurrentStatus.push("Anomaly");
+              }
+              else{
+                getCurrentStatus.push("Normal");
+              }
+              curStatus = 0;
+
+
               newDataMin.push(curHr); // save the current minute before changing
               newDataPC.push(curPC);
               curHr = dataTime[i][0].slice(0,2);
@@ -364,7 +446,7 @@ export const AuthProvider = ({children}) => {
               curPC += parseFloat(dataPC[i][0]);
             }
           }
-          
+          setGetCurrentStatus(getCurrentStatus);
 
           pcInfo = newDataPC;
           setPCInfo(pcInfo);
@@ -384,6 +466,11 @@ export const AuthProvider = ({children}) => {
           //console.log(timeInfo);
         }
 
+        currentStatus = getCurrentStatus;
+        setCurrentStatus(currentStatus);
+
+        getCurrentStatus = [];
+        setGetCurrentStatus(getCurrentStatus);
         
       })
     .catch((error)=>{
@@ -473,6 +560,63 @@ export const AuthProvider = ({children}) => {
     }
   };
 
+    // getting data in second
+    const detectAnomaly = () => {
+      var InsertAPIURL = `${BASE_URL}/collect_data.php`;
+  
+      var headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      };
+  
+      var Data={
+        user_id: userInfo.user_id,
+      };
+  
+      fetch(InsertAPIURL, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(Data)
+      })
+      .then((response)=>response.json())
+      .then((response)=>
+        {
+          //alert(response[0].Message);
+          //console.log(response[0].Message);
+  
+          var data = response[0].data;
+          
+          if(data.length > 0){ 
+            if (data[0][2] == "Anomaly"){
+              if(lastAnomalyTime != data[0][0].slice(0,19)){
+                anomalyNotification(data[0][1], data[0][0].slice(0,19));
+                lastAnomalyTime = data[0][0].slice(0,19);
+                setLastAnomalyTime(lastAnomalyTime);
+                console.log("Anomaly Detected");
+              }
+            }
+            
+            
+          }
+          
+        })
+      .catch((error)=>{
+        console.log(`getting data error ${error}`);
+        })
+    };
+
+  const anomalyNotification = (pc, time) => {
+    PushNotification.localNotification({
+      /* Android Only Properties */
+      channelId: "channel-id", // (required) channelId, if the channel doesn't exist, notification will not trigger.
+
+      /* iOS and Android properties */
+      //id: 0, // (optional) Valid unique 32 bit integer specified as string. default: Autogenerated Unique ID
+      title: "Anomaly Detected", // (optional)
+      message: `With the power comsumption of ${pc} at ${time}`, // (required)
+    });
+  }
+
   useEffect(() => {
     isLoggedIn();
     isConnectedIn();
@@ -490,6 +634,8 @@ export const AuthProvider = ({children}) => {
         pickerVal,
         rpiInfo,
         ipAddress,
+        lastAnomalyTime,
+        currentStatus,
         register,
         login,
         logout,
@@ -499,6 +645,8 @@ export const AuthProvider = ({children}) => {
         displayTime,
         displayGraph,
         connectRpi,
+        anomalyNotification,
+        detectAnomaly,
       }}>
       {children}
     </AuthContext.Provider>
