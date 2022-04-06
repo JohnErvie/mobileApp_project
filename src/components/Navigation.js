@@ -8,10 +8,17 @@ import RegisterScreen from '../screens/RegisterScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import AboutScreen from '../screens/AboutScreen';
 import ConnectScreen from '../screens/ConnectScreen';
+import ScanScreen from '../screens/ScanScreen';
 import {AuthContext} from '../context/AuthContext';
 import SplashScreen from '../screens/SplashScreen';
 
-import { createDrawerNavigator, DrawerContentScrollView, DrawerItem, DrawerItemList } from "@react-navigation/drawer";
+import {
+  createDrawerNavigator,
+  DrawerContentScrollView,
+  DrawerItem,
+  DrawerItemList,
+} from '@react-navigation/drawer';
+import {QRCodeScanner} from 'react-native-qrcode-scanner';
 const Drawer = createDrawerNavigator();
 
 const Stack = createNativeStackNavigator();
@@ -19,29 +26,34 @@ const Stack = createNativeStackNavigator();
 const DrawerNavigator = () => {
   const {userInfo} = useContext(AuthContext);
   return (
-    <Drawer.Navigator initialRouteName='Home' drawerContent={props => {
-      return (
-        <DrawerContentScrollView {...props}>
-          <View style={styles.viewStyle}>
-            <Image 
-              source={require('../images/user_icon.png')} 
-              style={styles.imageStyle}
-            />
-            <View style={styles.textStyle}>
-              <Text style={{fontSize: 16, fontWeight: "bold", color: 'black'}}>{userInfo.name}</Text>
-              <Text style={{color: 'gray'}}>{userInfo.email}</Text>
+    <Drawer.Navigator
+      initialRouteName="Home"
+      drawerContent={props => {
+        return (
+          <DrawerContentScrollView {...props}>
+            <View style={styles.viewStyle}>
+              <Image
+                source={require('../images/user_icon.png')}
+                style={styles.imageStyle}
+              />
+              <View style={styles.textStyle}>
+                <Text
+                  style={{fontSize: 16, fontWeight: 'bold', color: 'black'}}>
+                  {userInfo.name}
+                </Text>
+                <Text style={{color: 'gray'}}>{userInfo.email}</Text>
+              </View>
             </View>
-          </View>
-          <DrawerItemList {...props} />
-        </DrawerContentScrollView>
-      )
-    }}>
+            <DrawerItemList {...props} />
+          </DrawerContentScrollView>
+        );
+      }}>
       <Drawer.Screen name="Home" component={HomeScreen} />
       <Drawer.Screen name="Profile" component={ProfileScreen} />
       <Drawer.Screen name="About" component={AboutScreen} />
     </Drawer.Navigator>
   );
-}
+};
 
 const styles = StyleSheet.create({
   viewStyle: {
@@ -55,10 +67,10 @@ const styles = StyleSheet.create({
   },
   imageStyle: {
     width: 80,
-    height: 80, 
+    height: 80,
     borderRadius: 90,
     borderWidth: 3,
-    borderColor: "green",
+    borderColor: 'green',
   },
   textStyle: {
     flex: 1,
@@ -66,7 +78,7 @@ const styles = StyleSheet.create({
     //alignItems: 'center',
     textAlign: 'center',
     marginLeft: 10,
-    fontFamily: "Cochin",
+    fontFamily: 'Cochin',
   },
 });
 
@@ -83,18 +95,26 @@ const Navigation = () => {
         />
       ) : userInfo.status ? (
         rpiInfo.ip_address ? (
-          <Stack.Screen 
-          name="HomeStack" 
-          component={DrawerNavigator} 
-          options={{headerShown: false}}
-          />
-          ) : (
           <Stack.Screen
-            name="Connect"
-            component={ConnectScreen}
+            name="HomeStack"
+            component={DrawerNavigator}
             options={{headerShown: false}}
           />
-          )
+        ) : (
+          <>
+            <Stack.Screen
+              name="QRScanner"
+              component={ScanScreen}
+              options={{headerShown: false}}
+            />
+
+            <Stack.Screen
+              name="Connect"
+              component={ConnectScreen}
+              options={{headerShown: false}}
+            />
+          </>
+        )
       ) : (
         <>
           <Stack.Screen

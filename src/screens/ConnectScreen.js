@@ -14,7 +14,8 @@ import {AuthContext} from '../context/AuthContext';
 const ConnectScreen = ({navigation}) => {
   const [ip_address, setIp_address] = useState(null);
 
-  const {userInfo, setIsLoading, connectRpi, ipAddress, setIpAddress} = useContext(AuthContext);
+  const {userInfo, setIsLoading, connectRpi, ipAddress, setIpAddress} =
+    useContext(AuthContext);
 
   return (
     <View style={styles.container}>
@@ -25,20 +26,30 @@ const ConnectScreen = ({navigation}) => {
           value={ip_address}
           placeholder="Enter Ip Address of the Raspberry Pi"
           onChangeText={text => setIp_address(text)}
+          placeholderTextColor="#808080"
         />
 
         <Button
           title="Connect"
           onPress={() => {
-            if(ip_address === "" || ip_address === null){
-              Alert.alert("Error","Missing Required Field!");
-            }
-            else{
+            if (ip_address === '' || ip_address === null) {
+              Alert.alert('Error', 'Missing Required Field!');
+            } else {
               var user_id = userInfo.user_id;
               connectRpi(ip_address, user_id);
             }
           }}
         />
+      </View>
+
+      <View style={styles.textView}>
+        <TouchableOpacity
+          style={styles.buttonTouchable}
+          onPress={() => {
+            navigation.navigate('QRScanner');
+          }}>
+          <Text style={styles.buttonText}>Scan Using QRCode</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -59,9 +70,21 @@ const styles = StyleSheet.create({
     borderColor: '#bbb',
     borderRadius: 5,
     paddingHorizontal: 14,
+    color: '#000',
   },
   link: {
     color: 'blue',
+  },
+  textView: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonText: {
+    fontSize: 18,
+    color: 'rgb(0,122,255)',
+  },
+  buttonTouchable: {
+    padding: 16,
   },
 });
 

@@ -25,30 +25,44 @@ const LoginScreen = ({navigation}) => {
           value={email}
           placeholder="Enter email"
           onChangeText={text => setEmail(text)}
+          placeholderTextColor="#808080"
+          Color
         />
 
         <TextInput
           style={styles.input}
           value={password}
           placeholder="Enter password"
+          placeholderTextColor="#808080"
           onChangeText={text => setPassword(text)}
           secureTextEntry
+          theme={{
+            colors: {
+              placeholder: 'black',
+              primary: 'black',
+              text: 'black',
+            },
+          }}
         />
 
         <Button
           title="Login"
           onPress={() => {
-            if(email === "" || password === "" || email === null || password === null){
-              Alert.alert("Error","Missing Required Field!");
-            }
-            else{
+            if (
+              email === '' ||
+              password === '' ||
+              email === null ||
+              password === null
+            ) {
+              Alert.alert('Error', 'Missing Required Field!');
+            } else {
               login(email, password);
             }
           }}
         />
 
         <View style={{flexDirection: 'row', marginTop: 20}}>
-          <Text>Don't have an account? </Text>
+          <Text style={styles.textView}>Don't have an account? </Text>
           <TouchableOpacity onPress={() => navigation.navigate('Register')}>
             <Text style={styles.link}>Register</Text>
           </TouchableOpacity>
@@ -73,6 +87,10 @@ const styles = StyleSheet.create({
     borderColor: '#bbb',
     borderRadius: 5,
     paddingHorizontal: 14,
+    color: '#000',
+  },
+  textView: {
+    color: '#000',
   },
   link: {
     color: 'blue',

@@ -26,39 +26,68 @@ const RegisterScreen = ({navigation}) => {
           style={styles.input}
           value={name}
           placeholder="Enter name"
+          placeholderTextColor="#808080"
           onChangeText={text => setName(text)}
+          theme={{
+            colors: {
+              placeholder: 'black',
+              primary: 'black',
+              text: 'black',
+            },
+          }}
         />
 
         <TextInput
           style={styles.input}
           value={email}
           placeholder="Enter email"
+          placeholderTextColor="#808080"
           onChangeText={text => setEmail(text)}
+          theme={{
+            colors: {
+              placeholder: 'black',
+              primary: 'black',
+              text: 'black',
+            },
+          }}
         />
 
         <TextInput
           style={styles.input}
           value={password}
           placeholder="Enter password"
+          placeholderTextColor="#808080"
           onChangeText={text => setPassword(text)}
           secureTextEntry
+          theme={{
+            colors: {
+              placeholder: 'black',
+              primary: 'black',
+              text: 'black',
+            },
+          }}
         />
 
         <Button
           title="Register"
           onPress={() => {
-            if(email === "" || password === "" || email === null || password === null
-            || name === "" || name === null){
-              Alert.alert("Error","Missing Required Field!");
-            }
-            else{
+            if (
+              email === '' ||
+              password === '' ||
+              email === null ||
+              password === null ||
+              name === '' ||
+              name === null
+            ) {
+              Alert.alert('Error', 'Missing Required Field!');
+            } else {
               register(name, email, password);
             }
           }}
         />
 
         <View style={{flexDirection: 'row', marginTop: 20}}>
-          <Text>Already have an accoutn? </Text>
+          <Text style={styles.textView}>Already have an accoutn? </Text>
           <TouchableOpacity onPress={() => navigation.navigate('Login')}>
             <Text style={styles.link}>Login</Text>
           </TouchableOpacity>
@@ -83,6 +112,10 @@ const styles = StyleSheet.create({
     borderColor: '#bbb',
     borderRadius: 5,
     paddingHorizontal: 14,
+    color: '#000',
+  },
+  textView: {
+    color: '#000',
   },
   link: {
     color: 'blue',

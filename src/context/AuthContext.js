@@ -1,9 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, {createContext, useEffect, useState} from 'react';
 import {BASE_URL} from '../config';
-import { Alert } from "react-native";
-import PushNotification from "react-native-push-notification";
-
+import {Alert} from 'react-native';
+import PushNotification from 'react-native-push-notification';
 
 export const AuthContext = createContext();
 
@@ -11,9 +10,9 @@ export const AuthProvider = ({children}) => {
   const [userInfo, setUserInfo] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [splashLoading, setSplashLoading] = useState(false);
-  var [timeInfo, setTimeInfo] = useState([""]);
+  var [timeInfo, setTimeInfo] = useState(['']);
   var [pcInfo, setPCInfo] = useState([0]); // pc = power consumption
-  var [pickerVal, setPickerVal] = useState(["Second"]);
+  var [pickerVal, setPickerVal] = useState(['Second']);
   var [lastAnomalyTime, setLastAnomalyTime] = useState();
   var [currentStatus, setCurrentStatus] = useState([]);
   var [getCurrentStatus, setGetCurrentStatus] = useState([]);
@@ -21,57 +20,56 @@ export const AuthProvider = ({children}) => {
   //const [globalInfo, setGlobalInfo] = useState({});
   const [rpiInfo, setRpiInfo] = useState({});
   const [isConnected, setIsConnected] = useState(false);
-  var [ipAddress, setIpAddress] = useState("");
+  var [ipAddress, setIpAddress] = useState('');
 
-  const displayTime = (option) =>{
+  const displayTime = option => {
     pickerVal[0] = option;
-    
+
     setPickerVal(pickerVal);
     //console.log(pickerVal);
-  }
+  };
 
-  const displayGraph = (Val) =>{
+  const displayGraph = Val => {
     //console.log(pickerVal);
-    if(Val == "Second"){
+    if (Val == 'Second') {
       return getData_sec();
-    }
-    else if(Val == "Minute"){
+    } else if (Val == 'Minute') {
       return getData_min();
-    }
-    else if(Val == "Hour"){
+    } else if (Val == 'Hour') {
       return getData_hr();
     }
-
-  }
+  };
 
   const register = (name, email, password) => {
     setIsLoading(true);
 
-    if(name.length == null || email.length == null || password.length == null ){
-      Alert.alert("Error","Missing Required Field!");
-    }
-    else{
+    if (
+      name.length == null ||
+      email.length == null ||
+      password.length == null
+    ) {
+      Alert.alert('Error', 'Missing Required Field!');
+    } else {
       var InsertAPIURL = `${BASE_URL}/insert.php`;
 
       var headers = {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json',
       };
 
-      var Data={
+      var Data = {
         name: name,
         email: email,
-        password: password
+        password: password,
       };
 
       fetch(InsertAPIURL, {
         method: 'POST',
         headers: headers,
-        body: JSON.stringify(Data)
+        body: JSON.stringify(Data),
       })
-      .then((response)=>response.json())
-      .then((response)=>
-        {
+        .then(response => response.json())
+        .then(response => {
           alert(response[0].Message);
           let userInfo = response[0].Data;
           setUserInfo(userInfo);
@@ -80,95 +78,91 @@ export const AuthProvider = ({children}) => {
           console.log(userInfo.status);
           //getData();
         })
-      .catch((error)=>{
-        console.log(`register error ${error}`);
-        setIsLoading(false);
-        })
-      
+        .catch(error => {
+          console.log(`register error ${error}`);
+          setIsLoading(false);
+        });
     }
   };
 
   const login = (email, password) => {
     setIsLoading(true);
 
+    //BASE_URL = 'http://192.168.1.5/api';
+
     var InsertAPIURL = `${BASE_URL}/search.php`;
 
     var headers = {
-      'Accept': 'application/json',
+      Accept: 'application/json',
       'Content-Type': 'application/json',
     };
 
-    var Data={
+    var Data = {
       email: email,
-      password: password
+      password: password,
     };
 
     fetch(InsertAPIURL, {
       method: 'POST',
       headers: headers,
-      body: JSON.stringify(Data)
+      body: JSON.stringify(Data),
     })
-    .then((response)=>response.json())
-    .then((response)=>
-      {
+      .then(response => response.json())
+      .then(response => {
         alert(response[0].Message);
         console.log(response[0].Message);
-        if(response[0].Data != null){
+        if (response[0].Data != null) {
           let userInfo = response[0].Data;
           console.log(userInfo);
           setUserInfo(userInfo);
           AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
           setIsLoading(false);
-          //getData();            
+          //getData();
         }
       })
-    .catch((error)=>{
-      console.log(`login error ${error}`);
-      setIsLoading(false);
-      })
-      
-    
+      .catch(error => {
+        console.log(`login error ${error}`);
+        setIsLoading(false);
+      });
   };
 
   const logout = () => {
     setIsLoading(true);
 
-    
     var InsertAPIURL = `${BASE_URL}/logout.php`;
 
     var headers = {
-      'Accept': 'application/json',
+      Accept: 'application/json',
       'Content-Type': 'application/json',
     };
 
-    var Data={
+    var Data = {
       email: userInfo.email,
-      password: userInfo.password
+      password: userInfo.password,
     };
 
     fetch(InsertAPIURL, {
       method: 'POST',
       headers: headers,
-      body: JSON.stringify(Data)
+      body: JSON.stringify(Data),
     })
-    .then((response)=>response.json())
-    .then((response)=>
-      {
+      .then(response => response.json())
+      .then(response => {
         //alert(response[0].Message);
         console.log(response[0].Message);
-        if(response[0].Data != null){
+        if (response[0].Data != null) {
           console.log(response[0].Data);
           AsyncStorage.removeItem('userInfo');
           AsyncStorage.removeItem('rpiInfo');
           setUserInfo({});
           setRpiInfo({});
-          setIsLoading(false);            
+          setIsLoading(false);
         }
       })
-    .catch((error)=>{
-      console.log(`logout error ${error}`);
-      setIsLoading(false);
-      })
+      .catch(error => {
+        console.log(`logout error ${error}`);
+        setIsLoading(false);
+      });
   };
 
   // getting data in second
@@ -176,68 +170,60 @@ export const AuthProvider = ({children}) => {
     var InsertAPIURL = `${BASE_URL}/pc_data.php`;
 
     var headers = {
-      'Accept': 'application/json',
+      Accept: 'application/json',
       'Content-Type': 'application/json',
     };
 
-    var Data={
+    var Data = {
       user_id: userInfo.user_id,
     };
 
     fetch(InsertAPIURL, {
       method: 'POST',
       headers: headers,
-      body: JSON.stringify(Data)
+      body: JSON.stringify(Data),
     })
-    .then((response)=>response.json())
-    .then((response)=>
-      {
+      .then(response => response.json())
+      .then(response => {
         //alert(response[0].Message);
         //console.log(response[0].Message);
 
         var dataPC = response[0].power_consumption;
         var dataTime = response[0].time;
         var status = response[0].status;
-        
-        if(dataPC.length > 0 || dataTime.length > 0){ 
+
+        if (dataPC.length > 0 || dataTime.length > 0) {
           var newData = [];
-          
+
           for (let i = dataPC.length - 1; i >= 0; i--) {
             //newData.push(parseFloat(data[i][0].slice(0, -3))); no decimal
             newData.push(parseFloat(dataPC[i][0]));
 
-            if(status[i][0] == "Anomaly"){
-              getCurrentStatus.push("Anomaly");
-              
+            if (status[i][0] == 'Anomaly') {
+              getCurrentStatus.push('Anomaly');
+            } else {
+              getCurrentStatus.push('Normal');
             }
-            else{
-              getCurrentStatus.push("Normal");
-              
-            }
-            
           }
           setGetCurrentStatus(getCurrentStatus);
-          
+
           pcInfo = newData;
           setPCInfo(pcInfo);
-          //console.log(pcInfo);  
-          
-          
+          //console.log(pcInfo);
+
           var newData = [];
           for (let i = 0; i < dataTime.length; i++) {
-            newData.push(dataTime[i][0].slice(6,8));
+            newData.push(dataTime[i][0].slice(6, 8));
           }
           timeInfo = newData;
           setTimeInfo(timeInfo);
           //console.log(timeInfo);
-         
-        }
-        else{
+        } else {
           pcInfo = [0];
           setPCInfo(pcInfo);
           //console.log(pcInfo);
 
-          timeInfo = [""];
+          timeInfo = [''];
           setTimeInfo(timeInfo);
           //console.log(timeInfo);
         }
@@ -247,11 +233,10 @@ export const AuthProvider = ({children}) => {
 
         getCurrentStatus = [];
         setGetCurrentStatus(getCurrentStatus);
-        
       })
-    .catch((error)=>{
-      console.log(`getting data error ${error}`);
-      })
+      .catch(error => {
+        console.log(`getting data error ${error}`);
+      });
   };
 
   // getting data in minutes
@@ -259,22 +244,21 @@ export const AuthProvider = ({children}) => {
     var InsertAPIURL = `${BASE_URL}/pc_data_min.php`;
 
     var headers = {
-      'Accept': 'application/json',
+      Accept: 'application/json',
       'Content-Type': 'application/json',
     };
 
-    var Data={
+    var Data = {
       user_id: userInfo.user_id,
     };
 
     fetch(InsertAPIURL, {
       method: 'POST',
       headers: headers,
-      body: JSON.stringify(Data)
+      body: JSON.stringify(Data),
     })
-    .then((response)=>response.json())
-    .then((response)=>
-      {
+      .then(response => response.json())
+      .then(response => {
         //alert(response[0].Message);
         //console.log(response[0].Message);
 
@@ -283,73 +267,66 @@ export const AuthProvider = ({children}) => {
         var status = response[0].status;
         //var message = response[0].Message;
         var curStatus = 0;
-        
-        if(dataPC.length > 0 || dataTime.length > 0){ 
+
+        if (dataPC.length > 0 || dataTime.length > 0) {
           var newDataPC = [];
           var newDataMin = [];
-          
 
-          var curMin = dataTime[0][0].slice(3,5); //save the first value of Minute
+          var curMin = dataTime[0][0].slice(3, 5); //save the first value of Minute
           var curPC = 0;
 
-          for(let i = 0; i < dataTime.length; i++){
-            if (dataTime[i][0].slice(3,5) == curMin){
+          for (let i = 0; i < dataTime.length; i++) {
+            if (dataTime[i][0].slice(3, 5) == curMin) {
               curPC += parseFloat(dataPC[i][0]);
 
-              if (status[i][0] == "Anomaly"){
+              if (status[i][0] == 'Anomaly') {
                 curStatus = 1;
               }
-              
-              if (i == dataTime.length - 1){ // save the remaining seconds
+
+              if (i == dataTime.length - 1) {
+                // save the remaining seconds
                 newDataMin.push(curMin); // save the current minute before changing
                 newDataPC.push(curPC);
 
-                if(curStatus == 1){
-                  getCurrentStatus.push("Anomaly");
+                if (curStatus == 1) {
+                  getCurrentStatus.push('Anomaly');
+                } else {
+                  getCurrentStatus.push('Normal');
                 }
-                else{
-                  getCurrentStatus.push("Normal");
-                }
-
               }
-
-            }
-            else{
+            } else {
               //console.log(i);
               //reset
 
-              if(curStatus == 1){
-                getCurrentStatus.push("Anomaly");
-              }
-              else{
-                getCurrentStatus.push("Normal");
+              if (curStatus == 1) {
+                getCurrentStatus.push('Anomaly');
+              } else {
+                getCurrentStatus.push('Normal');
               }
               curStatus = 0;
-              
+
               newDataMin.push(curMin); // save the current minute before changing
               newDataPC.push(curPC);
-              curMin = dataTime[i][0].slice(3,5);
+              curMin = dataTime[i][0].slice(3, 5);
               curPC = 0;
               curPC += parseFloat(dataPC[i][0]);
             }
-            
           }
           setGetCurrentStatus(getCurrentStatus);
 
           pcInfo = newDataPC;
           setPCInfo(pcInfo);
-          //console.log(pcInfo); 
+          //console.log(pcInfo);
 
           timeInfo = newDataMin;
           setTimeInfo(timeInfo);
           //console.log(timeInfo);
-        }
-        else{
+        } else {
           pcInfo = [0];
           setPCInfo(pcInfo);
           //console.log(pcInfo);
 
-          timeInfo = [""];
+          timeInfo = [''];
           setTimeInfo(timeInfo);
           //console.log(timeInfo);
         }
@@ -359,11 +336,10 @@ export const AuthProvider = ({children}) => {
 
         getCurrentStatus = [];
         setGetCurrentStatus(getCurrentStatus);
-        
       })
-    .catch((error)=>{
-      console.log(`getting data error ${error}`);
-      })
+      .catch(error => {
+        console.log(`getting data error ${error}`);
+      });
   };
 
   // getting data in hours
@@ -371,22 +347,21 @@ export const AuthProvider = ({children}) => {
     var InsertAPIURL = `${BASE_URL}/pc_data_hr.php`;
 
     var headers = {
-      'Accept': 'application/json',
+      Accept: 'application/json',
       'Content-Type': 'application/json',
     };
 
-    var Data={
+    var Data = {
       user_id: userInfo.user_id,
     };
 
     fetch(InsertAPIURL, {
       method: 'POST',
       headers: headers,
-      body: JSON.stringify(Data)
+      body: JSON.stringify(Data),
     })
-    .then((response)=>response.json())
-    .then((response)=>
-      {
+      .then(response => response.json())
+      .then(response => {
         //alert(response[0].Message);
         //console.log(response[0].Message);
 
@@ -396,52 +371,45 @@ export const AuthProvider = ({children}) => {
 
         var curStatus = 0;
 
-        if(dataPC.length > 0 || dataTime.length > 0){ 
+        if (dataPC.length > 0 || dataTime.length > 0) {
           var newDataPC = [];
           var newDataMin = [];
-          
 
-          var curHr = dataTime[0][0].slice(0,2); //save the first value of Minute
+          var curHr = dataTime[0][0].slice(0, 2); //save the first value of Minute
           var curPC = 0;
 
-          for(let i = 0; i < dataTime.length; i++){
-            if (dataTime[i][0].slice(0,2) == curHr){
+          for (let i = 0; i < dataTime.length; i++) {
+            if (dataTime[i][0].slice(0, 2) == curHr) {
               curPC += parseFloat(dataPC[i][0]);
 
-              if (status[i][0] == "Anomaly"){
+              if (status[i][0] == 'Anomaly') {
                 curStatus = 1;
               }
-              
-              if (i == dataTime.length - 1 ){ // save the remaining seconds
+
+              if (i == dataTime.length - 1) {
+                // save the remaining seconds
                 newDataMin.push(curHr); // save the current minute before changing
                 newDataPC.push(curPC);
               }
 
-              if(curStatus == 1){
-                getCurrentStatus.push("Anomaly");
+              if (curStatus == 1) {
+                getCurrentStatus.push('Anomaly');
+              } else {
+                getCurrentStatus.push('Normal');
               }
-              else{
-                getCurrentStatus.push("Normal");
-              }
-
-              
-
-            }
-            else{
+            } else {
               //console.log(i);
 
-              if(curStatus == 1){
-                getCurrentStatus.push("Anomaly");
-              }
-              else{
-                getCurrentStatus.push("Normal");
+              if (curStatus == 1) {
+                getCurrentStatus.push('Anomaly');
+              } else {
+                getCurrentStatus.push('Normal');
               }
               curStatus = 0;
 
-
               newDataMin.push(curHr); // save the current minute before changing
               newDataPC.push(curPC);
-              curHr = dataTime[i][0].slice(0,2);
+              curHr = dataTime[i][0].slice(0, 2);
               curPC = 0;
               curPC += parseFloat(dataPC[i][0]);
             }
@@ -450,18 +418,17 @@ export const AuthProvider = ({children}) => {
 
           pcInfo = newDataPC;
           setPCInfo(pcInfo);
-          //console.log(pcInfo); 
+          //console.log(pcInfo);
 
           timeInfo = newDataMin;
           setTimeInfo(timeInfo);
           //console.log(timeInfo);
-        }
-        else{
+        } else {
           pcInfo = [0];
           setPCInfo(pcInfo);
           //console.log(pcInfo);
 
-          timeInfo = [""];
+          timeInfo = [''];
           setTimeInfo(timeInfo);
           //console.log(timeInfo);
         }
@@ -471,11 +438,10 @@ export const AuthProvider = ({children}) => {
 
         getCurrentStatus = [];
         setGetCurrentStatus(getCurrentStatus);
-        
       })
-    .catch((error)=>{
-      console.log(`getting data error ${error}`);
-      })
+      .catch(error => {
+        console.log(`getting data error ${error}`);
+      });
   };
 
   const connectRpi = (ip_address, user_id) => {
@@ -488,11 +454,11 @@ export const AuthProvider = ({children}) => {
     var InsertAPIURL = `${BASE_URL}/connect_rpi.php`;
 
     var headers = {
-      'Accept': 'application/json',
+      Accept: 'application/json',
       'Content-Type': 'application/json',
     };
 
-    var Data={
+    var Data = {
       ip_address: ip_address,
       user_id: user_id,
     };
@@ -500,28 +466,25 @@ export const AuthProvider = ({children}) => {
     fetch(InsertAPIURL, {
       method: 'POST',
       headers: headers,
-      body: JSON.stringify(Data)
+      body: JSON.stringify(Data),
     })
-    .then((response)=>response.json())
-    .then((response)=>
-      {
+      .then(response => response.json())
+      .then(response => {
         alert(response[0].Message);
         console.log(response[0].Message);
-        if(response[0].Data != null){
+        if (response[0].Data != null) {
           let rpiInfo = response[0].Data;
           console.log(rpiInfo);
           setRpiInfo(rpiInfo);
           AsyncStorage.setItem('rpiInfo', JSON.stringify(rpiInfo));
           setIsLoading(false);
-          //getData();            
+          //getData();
         }
       })
-    .catch((error)=>{
-      console.log(`connection error ${error}`);
-      setIsLoading(false);
-      })
-      
-    
+      .catch(error => {
+        console.log(`connection error ${error}`);
+        setIsLoading(false);
+      });
   };
 
   const isLoggedIn = async () => {
@@ -560,62 +523,58 @@ export const AuthProvider = ({children}) => {
     }
   };
 
-    // getting data in second
-    const detectAnomaly = () => {
-      var InsertAPIURL = `${BASE_URL}/collect_data.php`;
-  
-      var headers = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      };
-  
-      var Data={
-        user_id: userInfo.user_id,
-      };
-  
-      fetch(InsertAPIURL, {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify(Data)
-      })
-      .then((response)=>response.json())
-      .then((response)=>
-        {
-          //alert(response[0].Message);
-          //console.log(response[0].Message);
-  
-          var data = response[0].data;
-          
-          if(data.length > 0){ 
-            if (data[0][2] == "Anomaly"){
-              if(lastAnomalyTime != data[0][0].slice(0,19)){
-                anomalyNotification(data[0][1], data[0][0].slice(0,19));
-                lastAnomalyTime = data[0][0].slice(0,19);
-                setLastAnomalyTime(lastAnomalyTime);
-                console.log("Anomaly Detected");
-              }
-            }
-            
-            
-          }
-          
-        })
-      .catch((error)=>{
-        console.log(`getting data error ${error}`);
-        })
+  // getting data in second
+  const detectAnomaly = () => {
+    var InsertAPIURL = `${BASE_URL}/collect_data.php`;
+
+    var headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
     };
+
+    var Data = {
+      user_id: userInfo.user_id,
+    };
+
+    fetch(InsertAPIURL, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(Data),
+    })
+      .then(response => response.json())
+      .then(response => {
+        //alert(response[0].Message);
+        //console.log(response[0].Message);
+
+        var data = response[0].data;
+
+        if (data.length > 0) {
+          if (data[0][2] == 'Anomaly') {
+            if (lastAnomalyTime != data[0][0].slice(0, 19)) {
+              anomalyNotification(data[0][1], data[0][0].slice(0, 19));
+              lastAnomalyTime = data[0][0].slice(0, 19);
+              setLastAnomalyTime(lastAnomalyTime);
+              console.log('Anomaly Detected');
+            }
+          }
+        }
+      })
+      .catch(error => {
+        console.log(`getting data error ${error}`);
+      });
+  };
 
   const anomalyNotification = (pc, time) => {
     PushNotification.localNotification({
       /* Android Only Properties */
-      channelId: "channel-id", // (required) channelId, if the channel doesn't exist, notification will not trigger.
+      channelId: 'channel-id', // (required) channelId, if the channel doesn't exist, notification will not trigger.
 
       /* iOS and Android properties */
       //id: 0, // (optional) Valid unique 32 bit integer specified as string. default: Autogenerated Unique ID
-      title: "Anomaly Detected", // (optional)
+      title: 'Anomaly Detected', // (optional)
       message: `With the power comsumption of ${pc} at ${time}`, // (required)
     });
-  }
+  };
 
   useEffect(() => {
     isLoggedIn();
