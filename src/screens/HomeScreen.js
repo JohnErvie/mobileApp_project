@@ -56,7 +56,7 @@ const HomeScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
       <Spinner visible={setIsLoading} />
-      <Text style={styles.welcome}>{rpiInfo.ip_address}</Text>
+      {/* <Text style={styles.welcome}>{rpiInfo.ip_address}</Text> */}
       <Text style={styles.welcome}>Aggregated Data (by {pickerVal[0]})</Text>
 
       <Picker
@@ -92,7 +92,7 @@ const HomeScreen = ({navigation}) => {
         }}
       />
 
-      <Button title="Test" color="blue" onPress={anomalyNotification} />
+      {/* <Button title="Test" color="blue" onPress={anomalyNotification} /> */}
     </View>
   );
 };

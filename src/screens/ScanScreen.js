@@ -18,14 +18,12 @@ import QRCodeScanner from 'react-native-qrcode-scanner';
 import {RNCamera} from 'react-native-camera';
 
 const ScanScreen = ({navigation}) => {
-  const {userInfo, setIsLoading, connectRpi, ipAddress, setIpAddress} =
-    useContext(AuthContext);
+  const {setIsLoading, storeIp_address} = useContext(AuthContext);
 
   var [isFlash, setIsFlash] = useState(false);
 
   const onSuccess = e => {
-    var user_id = userInfo.user_id;
-    connectRpi(e.data, user_id);
+    storeIp_address(e.data, navigation);
   };
 
   return (
@@ -74,7 +72,7 @@ const ScanScreen = ({navigation}) => {
             onPress={() => {
               navigation.navigate('Connect');
             }}>
-            <Text style={styles.buttonText}>Type the IP Address Manualy</Text>
+            <Text style={styles.buttonText}>Type the IP Address Manually</Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -11,43 +11,42 @@ import {
 import Spinner from 'react-native-loading-spinner-overlay';
 import {AuthContext} from '../context/AuthContext';
 
-const ConnectScreen = ({navigation}) => {
-  const [ip_address, setIp_address] = useState(null);
+const PasswordScreen = ({navigation}) => {
+  const [password, setPassword] = useState(null);
 
-  const {setIsLoading, storeIp_address} = useContext(AuthContext);
+  const {setIsLoading, connectRpi, RPI_ip_address} = useContext(AuthContext);
 
   return (
     <View style={styles.container}>
       <Spinner visible={setIsLoading} />
+      <View style={styles.textView}>
+        <Button
+          title="Back"
+          onPress={() => {
+            navigation.navigate('QRScanner');
+          }}
+        />
+      </View>
+
       <View style={styles.wrapper}>
         <TextInput
           style={styles.input}
-          value={ip_address}
-          placeholder="Enter Ip Address of the Raspberry Pi"
-          onChangeText={text => setIp_address(text)}
+          value={password}
+          placeholder="Enter the Password"
+          onChangeText={text => setPassword(text)}
           placeholderTextColor="#808080"
         />
 
         <Button
           title="Connect"
           onPress={() => {
-            if (ip_address === '' || ip_address === null) {
+            if (password === '' || password === null) {
               Alert.alert('Error', 'Missing Required Field!');
             } else {
-              storeIp_address(ip_address, navigation);
+              connectRpi(password);
             }
           }}
         />
-      </View>
-
-      <View style={styles.textView}>
-        <TouchableOpacity
-          style={styles.buttonTouchable}
-          onPress={() => {
-            navigation.navigate('QRScanner');
-          }}>
-          <Text style={styles.buttonText}>Scan Using QRCode</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -74,8 +73,8 @@ const styles = StyleSheet.create({
     color: 'blue',
   },
   textView: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
   },
   buttonText: {
     fontSize: 18,
@@ -86,4 +85,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ConnectScreen;
+export default PasswordScreen;

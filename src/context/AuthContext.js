@@ -16,6 +16,7 @@ export const AuthProvider = ({children}) => {
   var [lastAnomalyTime, setLastAnomalyTime] = useState();
   var [currentStatus, setCurrentStatus] = useState([]);
   var [getCurrentStatus, setGetCurrentStatus] = useState([]);
+  var [RPI_ip_address, setRPI_IpAddress] = useState(null);
 
   //const [globalInfo, setGlobalInfo] = useState({});
   const [rpiInfo, setRpiInfo] = useState({});
@@ -27,6 +28,13 @@ export const AuthProvider = ({children}) => {
 
     setPickerVal(pickerVal);
     //console.log(pickerVal);
+  };
+
+  //store the ip_address
+  const storeIp_address = (ip_address, navigation) => {
+    RPI_ip_address = ip_address;
+    setRPI_IpAddress(RPI_ip_address);
+    navigation.navigate('Password');
   };
 
   const displayGraph = Val => {
@@ -137,8 +145,7 @@ export const AuthProvider = ({children}) => {
     };
 
     var Data = {
-      email: userInfo.email,
-      password: userInfo.password,
+      rpi_id: rpiInfo.rpi_id,
     };
 
     fetch(InsertAPIURL, {
@@ -152,9 +159,7 @@ export const AuthProvider = ({children}) => {
         console.log(response[0].Message);
         if (response[0].Data != null) {
           console.log(response[0].Data);
-          AsyncStorage.removeItem('userInfo');
           AsyncStorage.removeItem('rpiInfo');
-          setUserInfo({});
           setRpiInfo({});
           setIsLoading(false);
         }
@@ -167,6 +172,8 @@ export const AuthProvider = ({children}) => {
 
   // getting data in second
   const getData_sec = () => {
+    //console.log(rpiInfo.rpi_id);
+
     var InsertAPIURL = `${BASE_URL}/pc_data.php`;
 
     var headers = {
@@ -175,7 +182,7 @@ export const AuthProvider = ({children}) => {
     };
 
     var Data = {
-      user_id: userInfo.user_id,
+      rpi_id: rpiInfo.rpi_id,
     };
 
     fetch(InsertAPIURL, {
@@ -249,7 +256,7 @@ export const AuthProvider = ({children}) => {
     };
 
     var Data = {
-      user_id: userInfo.user_id,
+      rpi_id: rpiInfo.rpi_id,
     };
 
     fetch(InsertAPIURL, {
@@ -352,7 +359,7 @@ export const AuthProvider = ({children}) => {
     };
 
     var Data = {
-      user_id: userInfo.user_id,
+      rpi_id: rpiInfo.rpi_id,
     };
 
     fetch(InsertAPIURL, {
@@ -444,12 +451,10 @@ export const AuthProvider = ({children}) => {
       });
   };
 
-  const connectRpi = (ip_address, user_id) => {
+  const connectRpi = password => {
     setIsLoading(true);
 
-    ipAddress = ip_address;
-    setIpAddress(ipAddress);
-    console.log(ipAddress);
+    console.log(password);
 
     var InsertAPIURL = `${BASE_URL}/connect_rpi.php`;
 
@@ -459,8 +464,8 @@ export const AuthProvider = ({children}) => {
     };
 
     var Data = {
-      ip_address: ip_address,
-      user_id: user_id,
+      ip_address: RPI_ip_address,
+      password: password,
     };
 
     fetch(InsertAPIURL, {
@@ -533,7 +538,7 @@ export const AuthProvider = ({children}) => {
     };
 
     var Data = {
-      user_id: userInfo.user_id,
+      rpi_id: rpiInfo.rpi_id,
     };
 
     fetch(InsertAPIURL, {
@@ -595,6 +600,8 @@ export const AuthProvider = ({children}) => {
         ipAddress,
         lastAnomalyTime,
         currentStatus,
+        RPI_ip_address,
+        storeIp_address,
         register,
         login,
         logout,
