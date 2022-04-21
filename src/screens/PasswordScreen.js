@@ -35,6 +35,7 @@ const PasswordScreen = ({navigation}) => {
           placeholder="Enter the Password"
           onChangeText={text => setPassword(text)}
           placeholderTextColor="#808080"
+          secureTextEntry={true}
         />
 
         <Button

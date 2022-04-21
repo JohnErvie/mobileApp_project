@@ -1,7 +1,8 @@
 import React, {useContext} from 'react';
-import {View, Text, Image, StyleSheet} from 'react-native';
+import {View, Text, Image, StyleSheet, useWindowDimensions} from 'react-native';
 
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/HomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
@@ -13,13 +14,18 @@ import PasswordScreen from '../screens/PasswordScreen';
 import {AuthContext} from '../context/AuthContext';
 import SplashScreen from '../screens/SplashScreen';
 
+//icons
+import {Entypo, AntDesign} from '@expo/vector-icons';
+
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
   DrawerItem,
   DrawerItemList,
 } from '@react-navigation/drawer';
-import {QRCodeScanner} from 'react-native-qrcode-scanner';
+
+//import {TabView, SceneMap} from 'react-native-tab-view';
+
 const Drawer = createDrawerNavigator();
 
 const Stack = createNativeStackNavigator();
@@ -53,6 +59,58 @@ const DrawerNavigator = () => {
       <Drawer.Screen name="Profile" component={ProfileScreen} />
       <Drawer.Screen name="About" component={AboutScreen} />
     </Drawer.Navigator>
+  );
+};
+
+const Tab = createBottomTabNavigator();
+
+const TabNavigator = () => {
+  return (
+    <Tab.Navigator
+      initialRouteName="Home"
+      screenOptions={{
+        tabBarInactiveTintColor: '#000000',
+      }}>
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          tabBarLabel: 'HOME',
+          tabBarOptions: {
+            showIcon: true,
+          },
+          tabBarIcon: ({color, size}) => (
+            <Entypo name="home" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          tabBarLabel: 'PROFILE',
+          tabBarOptions: {
+            showIcon: true,
+          },
+          tabBarIcon: ({color, size}) => (
+            <AntDesign name="profile" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="About"
+        component={AboutScreen}
+        options={{
+          tabBarLabel: 'ABOUT',
+          tabBarOptions: {
+            showIcon: true,
+          },
+          tabBarIcon: ({color, size}) => (
+            <Entypo name="info-with-circle" size={size} color={color} />
+          ),
+        }}
+      />
+    </Tab.Navigator>
   );
 };
 
@@ -95,9 +153,16 @@ const Navigation = () => {
           options={{headerShown: false}}
         />
       ) : rpiInfo.ip_address ? (
+        /*
         <Stack.Screen
           name="HomeStack"
           component={DrawerNavigator}
+          options={{headerShown: false}}
+        />
+        */
+        <Stack.Screen
+          name="HomeStack"
+          component={TabNavigator}
           options={{headerShown: false}}
         />
       ) : (
@@ -124,31 +189,5 @@ const Navigation = () => {
     </Stack.Navigator>
   );
 };
-/*
-const ProfileStackNavigator = () => {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen name="Profile" component={ProfileScreen} />
-    </Stack.Navigator>
-  );
-}
 
-const HomeStackNavigator = () => {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen name="Home" component={HomeScreen} />
-    </Stack.Navigator>
-  );
-}
-
-const AboutStackNavigator = () => {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen name="About" component={AboutScreen} />
-    </Stack.Navigator>
-  );
-}
-
-export {Navigation, ProfileStackNavigator, HomeStackNavigator, AboutStackNavigator};
-*/
 export default Navigation;

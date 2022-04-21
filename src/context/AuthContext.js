@@ -31,10 +31,41 @@ export const AuthProvider = ({children}) => {
   };
 
   //store the ip_address
-  const storeIp_address = (ip_address, navigation) => {
+  const storeIp_address = ip_address => {
     RPI_ip_address = ip_address;
     setRPI_IpAddress(RPI_ip_address);
-    navigation.navigate('Password');
+
+    var InsertAPIURL = `${BASE_URL}/check_ip.php`;
+
+    var headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    };
+
+    var Data = {
+      ip_address: RPI_ip_address,
+    };
+
+    return fetch(InsertAPIURL, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(Data),
+    })
+      .then(response => response.json())
+      .then(response => {
+        //alert(response[0].Message);
+        //console.log(response[0].Message);
+        if (response[0].Data != null) {
+          //console.log(response[0].Message);
+        } else {
+          Alert.alert('Error', response[0].Message);
+        }
+        return response;
+      })
+      .catch(error => {
+        console.log(`logout error ${error}`);
+      });
+    //navigation.navigate('Password');
   };
 
   const displayGraph = Val => {
@@ -46,92 +77,6 @@ export const AuthProvider = ({children}) => {
     } else if (Val == 'Hour') {
       return getData_hr();
     }
-  };
-
-  const register = (name, email, password) => {
-    setIsLoading(true);
-
-    if (
-      name.length == null ||
-      email.length == null ||
-      password.length == null
-    ) {
-      Alert.alert('Error', 'Missing Required Field!');
-    } else {
-      var InsertAPIURL = `${BASE_URL}/insert.php`;
-
-      var headers = {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      };
-
-      var Data = {
-        name: name,
-        email: email,
-        password: password,
-      };
-
-      fetch(InsertAPIURL, {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify(Data),
-      })
-        .then(response => response.json())
-        .then(response => {
-          alert(response[0].Message);
-          let userInfo = response[0].Data;
-          setUserInfo(userInfo);
-          AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
-          setIsLoading(false);
-          console.log(userInfo.status);
-          //getData();
-        })
-        .catch(error => {
-          console.log(`register error ${error}`);
-          setIsLoading(false);
-        });
-    }
-  };
-
-  const login = (email, password) => {
-    setIsLoading(true);
-
-    //BASE_URL = 'http://192.168.1.5/api';
-
-    var InsertAPIURL = `${BASE_URL}/search.php`;
-
-    var headers = {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    };
-
-    var Data = {
-      email: email,
-      password: password,
-    };
-
-    fetch(InsertAPIURL, {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify(Data),
-    })
-      .then(response => response.json())
-      .then(response => {
-        alert(response[0].Message);
-        console.log(response[0].Message);
-        if (response[0].Data != null) {
-          let userInfo = response[0].Data;
-          console.log(userInfo);
-          setUserInfo(userInfo);
-          AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
-          setIsLoading(false);
-          //getData();
-        }
-      })
-      .catch(error => {
-        console.log(`login error ${error}`);
-        setIsLoading(false);
-      });
   };
 
   const logout = () => {
@@ -602,8 +547,6 @@ export const AuthProvider = ({children}) => {
         currentStatus,
         RPI_ip_address,
         storeIp_address,
-        register,
-        login,
         logout,
         getData_sec,
         getData_min,
