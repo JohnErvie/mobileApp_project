@@ -10,7 +10,6 @@ import ProfileScreen from '../screens/ProfileScreen';
 import AboutScreen from '../screens/AboutScreen';
 import ConnectScreen from '../screens/ConnectScreen';
 import ScanScreen from '../screens/ScanScreen';
-import PasswordScreen from '../screens/PasswordScreen';
 import {AuthContext} from '../context/AuthContext';
 import SplashScreen from '../screens/SplashScreen';
 
@@ -176,12 +175,6 @@ const Navigation = () => {
           <Stack.Screen
             name="Connect"
             component={ConnectScreen}
-            options={{headerShown: false}}
-          />
-
-          <Stack.Screen
-            name="Password"
-            component={PasswordScreen}
             options={{headerShown: false}}
           />
         </>

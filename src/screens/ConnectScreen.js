@@ -55,6 +55,7 @@ const ConnectScreen = ({navigation}) => {
   var [password, setPassword] = useState(null);
 
   const [visible, setVisible] = React.useState(false);
+  const [visibleCheckIP, setVisibleCheckIP] = React.useState(false);
 
   const {setIsLoading, storeIp_address, RPI_ip_address, connectRpi} =
     useContext(AuthContext);
@@ -87,7 +88,8 @@ const ConnectScreen = ({navigation}) => {
                   ip_address = '';
                   setIp_address(ip_address);
                 } else {
-                  setVisible(false);
+                  setVisibleCheckIP(true);
+                  //setVisible(false);
                 }
               });
 
@@ -185,6 +187,49 @@ const ConnectScreen = ({navigation}) => {
                   password = '';
                   setPassword(password);
                 }
+              }}
+            />
+          </View>
+        </View>
+      </ModalPoup>
+
+      <ModalPoup visible={visibleCheckIP}>
+        <View style={{alignItems: 'center'}}>
+          <View style={styles.header}>
+            <Text style={{color: 'black', fontWeight: 'bold', fontSize: 20}}>
+              Error
+            </Text>
+            <TouchableOpacity
+              onPress={() => {
+                setVisibleCheckIP(false);
+              }}>
+              <AntDesign name="closecircle" size={25} color="black" />
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View style={styles.wrapper}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'center',
+              marginLeft: 45,
+            }}>
+            <Text style={{color: 'black', fontSize: 15}}>
+              {'No ' + RPI_ip_address + ' IP Address Registered.'}
+            </Text>
+          </View>
+
+          <View
+            style={{
+              alignItems: 'stretch',
+              width: '100%',
+              marginLeft: 25,
+              marginTop: 20,
+            }}>
+            <Button
+              title="OK"
+              onPress={() => {
+                setVisibleCheckIP(false);
               }}
             />
           </View>

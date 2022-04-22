@@ -57,13 +57,12 @@ export const AuthProvider = ({children}) => {
         //console.log(response[0].Message);
         if (response[0].Data != null) {
           //console.log(response[0].Message);
-        } else {
-          Alert.alert('Error', response[0].Message);
         }
         return response;
       })
       .catch(error => {
         console.log(`logout error ${error}`);
+        throw error;
       });
     //navigation.navigate('Password');
   };

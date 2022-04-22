@@ -70,13 +70,23 @@ const ScanScreen = ({navigation}) => {
 
   const [visible, setVisible] = React.useState(false);
 
+  const [visibleCheckIP, setVisibleCheckIP] = React.useState(false);
+
   var [isFlash, setIsFlash] = useState(false);
 
-  let scanner;
+  var [scanner, setScanner] = useState();
 
   const onSuccess = e => {
-    storeIp_address(e.data, navigation);
-    setVisible(true);
+    storeIp_address(e.data).then(response => {
+      if (response[0]['Data'] != null) {
+        setVisible(true);
+      } else if (response[0]['Data'] == null) {
+        setVisibleCheckIP(true);
+
+        //scanner.reactivate();
+      }
+    });
+    //setVisible(true);
   };
 
   const makeSlideOutTranslation = (translationType, fromValue) => {
@@ -95,6 +105,7 @@ const ScanScreen = ({navigation}) => {
       <QRCodeScanner
         ref={node => {
           scanner = node;
+          setScanner(scanner);
         }}
         showMarker={true}
         onRead={onSuccess}
@@ -233,6 +244,51 @@ const ScanScreen = ({navigation}) => {
             </View>
           </View>
         </ModalPoup>
+
+        <ModalPoup visible={visibleCheckIP}>
+          <View style={{alignItems: 'center'}}>
+            <View style={styles.header}>
+              <Text style={{color: 'black', fontWeight: 'bold', fontSize: 20}}>
+                Error
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setVisibleCheckIP(false);
+                  scanner.reactivate();
+                }}>
+                <AntDesign name="closecircle" size={25} color="black" />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View style={styles.wrapper}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'center',
+                marginLeft: 45,
+              }}>
+              <Text style={{color: 'black', fontSize: 15}}>
+                {'No ' + RPI_ip_address + ' IP Address Registered.'}
+              </Text>
+            </View>
+
+            <View
+              style={{
+                alignItems: 'stretch',
+                width: '100%',
+                marginLeft: 25,
+                marginTop: 20,
+              }}>
+              <Button
+                title="OK"
+                onPress={() => {
+                  setVisibleCheckIP(false);
+                  scanner.reactivate();
+                }}
+              />
+            </View>
+          </View>
+        </ModalPoup>
       </View>
     </>
   );
@@ -295,6 +351,11 @@ const styles = StyleSheet.create({
     //alignItems: 'center',
     justifyContent: 'center',
   },
+  wrapper2: {
+    width: '100%',
+    //alignItems: 'center',
+    justifyContent: 'center',
+  },
   modalBackGround: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
@@ -329,6 +390,20 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     marginLeft: 20,
     width: '100%',
+  },
+  modalBackGround2: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer2: {
+    width: '80%',
+    backgroundColor: 'white',
+    paddingHorizontal: 20,
+    paddingVertical: 30,
+    borderRadius: 20,
+    elevation: 20,
   },
 });
 
