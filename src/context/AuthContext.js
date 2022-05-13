@@ -12,22 +12,34 @@ export const AuthProvider = ({children}) => {
   const [splashLoading, setSplashLoading] = useState(false);
   var [timeInfo, setTimeInfo] = useState(['']);
   var [pcInfo, setPCInfo] = useState([0]); // pc = power consumption
-  var [pickerVal, setPickerVal] = useState(['Second']);
   var [lastAnomalyTime, setLastAnomalyTime] = useState();
   var [currentStatus, setCurrentStatus] = useState([]);
   var [getCurrentStatus, setGetCurrentStatus] = useState([]);
   var [RPI_ip_address, setRPI_IpAddress] = useState(null);
+  var [pickerVal, setPickerVal] = useState(['Minute']);
 
   //const [globalInfo, setGlobalInfo] = useState({});
   const [rpiInfo, setRpiInfo] = useState({});
   const [isConnected, setIsConnected] = useState(false);
   var [ipAddress, setIpAddress] = useState('');
 
+  var [radioValue, setRadioValue] = useState([]);
+
+  var [anomalyData, setAnomalyData] = useState([]);
+
   const displayTime = option => {
     pickerVal[0] = option;
-
     setPickerVal(pickerVal);
+
     //console.log(pickerVal);
+    //console.log('LOOP??' + pickerVal);
+  };
+
+  const getDataRadio = value => {
+    radioValue[0] = value['label'];
+    setRadioValue(radioValue);
+    displayGraphRadio(radioValue[0]);
+    //console.log(radioValue);
   };
 
   //store the ip_address
@@ -67,14 +79,27 @@ export const AuthProvider = ({children}) => {
     //navigation.navigate('Password');
   };
 
-  const displayGraph = Val => {
+  const displayGraph = (Val, rpi, sensor) => {
     //console.log(pickerVal);
-    if (Val == 'Second') {
-      return getData_sec();
-    } else if (Val == 'Minute') {
-      return getData_min();
+    if (Val == 'Minute') {
+      return getData(rpi, sensor, 'minute(datetime)');
     } else if (Val == 'Hour') {
-      return getData_hr();
+      return getData(rpi, sensor, 'hour(datetime)');
+    } else if (Val == 'Month') {
+      return getData(rpi, sensor, 'month(datetime)');
+    }
+  };
+
+  const displayGraphRadio = radioVal => {
+    if (radioVal == 'Summary') {
+      displayGraph(pickerVal[0], rpiInfo.rpi_id, '0');
+      //console.log(rpiInfo.rpi_id);
+    } else if (radioVal == 'Sensor 1') {
+      displayGraph(pickerVal[0], '0', 'pzem1');
+    } else if (radioVal == 'Sensor 2') {
+      displayGraph(pickerVal[0], '0', 'pzem2');
+    } else if (radioVal == 'Sensor 3') {
+      displayGraph(pickerVal[0], '0', 'pzem3');
     }
   };
 
@@ -114,8 +139,7 @@ export const AuthProvider = ({children}) => {
       });
   };
 
-  // getting data in second
-  const getData_sec = () => {
+  const getData = (rpi, sensor, time) => {
     //console.log(rpiInfo.rpi_id);
 
     var InsertAPIURL = `${BASE_URL}/pc_data.php`;
@@ -126,7 +150,9 @@ export const AuthProvider = ({children}) => {
     };
 
     var Data = {
-      rpi_id: rpiInfo.rpi_id,
+      rpi_id: rpi, //rpiInfo.rpi_id
+      sensor_no: sensor,
+      time: time,
     };
 
     fetch(InsertAPIURL, {
@@ -136,21 +162,35 @@ export const AuthProvider = ({children}) => {
     })
       .then(response => response.json())
       .then(response => {
-        //alert(response[0].Message);
-        //console.log(response[0].Message);
+        //alert(response[0].power_consumption);
+        //console.log(response[0].power_consumption.length);
 
-        var dataPC = response[0].power_consumption;
-        var dataTime = response[0].time;
-        var status = response[0].status;
+        var dataPC = [];
+        var dataTime = [];
+        var status = [];
+        //console.log(response[0].Message);
+        for (let x = response[0].power_consumption.length - 1; x >= 0; x--) {
+          dataPC.push(
+            response[0].power_consumption[x]['sum(power_consumption)'],
+          );
+          dataTime.push(response[0].power_consumption[x][time]);
+          status.push(
+            response[0].power_consumption[x][
+              'sum(power_consumption_anomaly_score)'
+            ],
+          );
+        }
+
+        //console.log(status);
 
         if (dataPC.length > 0 || dataTime.length > 0) {
           var newData = [];
 
-          for (let i = dataPC.length - 1; i >= 0; i--) {
+          for (let i = 0; i < dataPC.length; i++) {
             //newData.push(parseFloat(data[i][0].slice(0, -3))); no decimal
-            newData.push(parseFloat(dataPC[i][0]));
+            newData.push(parseFloat(dataPC[i]));
 
-            if (status[i][0] == 'Anomaly') {
+            if (parseInt(status[i]) != 0) {
               getCurrentStatus.push('Anomaly');
             } else {
               getCurrentStatus.push('Normal');
@@ -162,12 +202,10 @@ export const AuthProvider = ({children}) => {
           setPCInfo(pcInfo);
           //console.log(pcInfo);
 
-          var newData = [];
-          for (let i = 0; i < dataTime.length; i++) {
-            newData.push(dataTime[i][0].slice(6, 8));
-          }
-          timeInfo = newData;
+          timeInfo = dataTime;
           setTimeInfo(timeInfo);
+
+          //console.log(pcInfo);
           //console.log(timeInfo);
         } else {
           pcInfo = [0];
@@ -190,9 +228,10 @@ export const AuthProvider = ({children}) => {
       });
   };
 
-  // getting data in minutes
-  const getData_min = () => {
-    var InsertAPIURL = `${BASE_URL}/pc_data_min.php`;
+  const getAnomalyData = () => {
+    //console.log(rpiInfo.rpi_id);
+
+    var InsertAPIURL = `${BASE_URL}/anomaly_list.php`;
 
     var headers = {
       Accept: 'application/json',
@@ -200,7 +239,7 @@ export const AuthProvider = ({children}) => {
     };
 
     var Data = {
-      rpi_id: rpiInfo.rpi_id,
+      rpi_id: rpiInfo.rpi_id, //rpiInfo.rpi_id
     };
 
     fetch(InsertAPIURL, {
@@ -210,185 +249,12 @@ export const AuthProvider = ({children}) => {
     })
       .then(response => response.json())
       .then(response => {
-        //alert(response[0].Message);
-        //console.log(response[0].Message);
-
-        var dataPC = response[0].power_consumption;
-        var dataTime = response[0].time;
-        var status = response[0].status;
-        //var message = response[0].Message;
-        var curStatus = 0;
-
-        if (dataPC.length > 0 || dataTime.length > 0) {
-          var newDataPC = [];
-          var newDataMin = [];
-
-          var curMin = dataTime[0][0].slice(3, 5); //save the first value of Minute
-          var curPC = 0;
-
-          for (let i = 0; i < dataTime.length; i++) {
-            if (dataTime[i][0].slice(3, 5) == curMin) {
-              curPC += parseFloat(dataPC[i][0]);
-
-              if (status[i][0] == 'Anomaly') {
-                curStatus = 1;
-              }
-
-              if (i == dataTime.length - 1) {
-                // save the remaining seconds
-                newDataMin.push(curMin); // save the current minute before changing
-                newDataPC.push(curPC);
-
-                if (curStatus == 1) {
-                  getCurrentStatus.push('Anomaly');
-                } else {
-                  getCurrentStatus.push('Normal');
-                }
-              }
-            } else {
-              //console.log(i);
-              //reset
-
-              if (curStatus == 1) {
-                getCurrentStatus.push('Anomaly');
-              } else {
-                getCurrentStatus.push('Normal');
-              }
-              curStatus = 0;
-
-              newDataMin.push(curMin); // save the current minute before changing
-              newDataPC.push(curPC);
-              curMin = dataTime[i][0].slice(3, 5);
-              curPC = 0;
-              curPC += parseFloat(dataPC[i][0]);
-            }
-          }
-          setGetCurrentStatus(getCurrentStatus);
-
-          pcInfo = newDataPC;
-          setPCInfo(pcInfo);
-          //console.log(pcInfo);
-
-          timeInfo = newDataMin;
-          setTimeInfo(timeInfo);
-          //console.log(timeInfo);
-        } else {
-          pcInfo = [0];
-          setPCInfo(pcInfo);
-          //console.log(pcInfo);
-
-          timeInfo = [''];
-          setTimeInfo(timeInfo);
-          //console.log(timeInfo);
-        }
-
-        currentStatus = getCurrentStatus;
-        setCurrentStatus(currentStatus);
-
-        getCurrentStatus = [];
-        setGetCurrentStatus(getCurrentStatus);
-      })
-      .catch(error => {
-        console.log(`getting data error ${error}`);
-      });
-  };
-
-  // getting data in hours
-  const getData_hr = () => {
-    var InsertAPIURL = `${BASE_URL}/pc_data_hr.php`;
-
-    var headers = {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    };
-
-    var Data = {
-      rpi_id: rpiInfo.rpi_id,
-    };
-
-    fetch(InsertAPIURL, {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify(Data),
-    })
-      .then(response => response.json())
-      .then(response => {
-        //alert(response[0].Message);
-        //console.log(response[0].Message);
-
-        var dataPC = response[0].power_consumption;
-        var dataTime = response[0].time;
-        var status = response[0].status;
-
-        var curStatus = 0;
-
-        if (dataPC.length > 0 || dataTime.length > 0) {
-          var newDataPC = [];
-          var newDataMin = [];
-
-          var curHr = dataTime[0][0].slice(0, 2); //save the first value of Minute
-          var curPC = 0;
-
-          for (let i = 0; i < dataTime.length; i++) {
-            if (dataTime[i][0].slice(0, 2) == curHr) {
-              curPC += parseFloat(dataPC[i][0]);
-
-              if (status[i][0] == 'Anomaly') {
-                curStatus = 1;
-              }
-
-              if (i == dataTime.length - 1) {
-                // save the remaining seconds
-                newDataMin.push(curHr); // save the current minute before changing
-                newDataPC.push(curPC);
-              }
-
-              if (curStatus == 1) {
-                getCurrentStatus.push('Anomaly');
-              } else {
-                getCurrentStatus.push('Normal');
-              }
-            } else {
-              //console.log(i);
-
-              if (curStatus == 1) {
-                getCurrentStatus.push('Anomaly');
-              } else {
-                getCurrentStatus.push('Normal');
-              }
-              curStatus = 0;
-
-              newDataMin.push(curHr); // save the current minute before changing
-              newDataPC.push(curPC);
-              curHr = dataTime[i][0].slice(0, 2);
-              curPC = 0;
-              curPC += parseFloat(dataPC[i][0]);
-            }
-          }
-          setGetCurrentStatus(getCurrentStatus);
-
-          pcInfo = newDataPC;
-          setPCInfo(pcInfo);
-          //console.log(pcInfo);
-
-          timeInfo = newDataMin;
-          setTimeInfo(timeInfo);
-          //console.log(timeInfo);
-        } else {
-          pcInfo = [0];
-          setPCInfo(pcInfo);
-          //console.log(pcInfo);
-
-          timeInfo = [''];
-          setTimeInfo(timeInfo);
-          //console.log(timeInfo);
-        }
-
-        currentStatus = getCurrentStatus;
-        setCurrentStatus(currentStatus);
-
-        getCurrentStatus = [];
-        setGetCurrentStatus(getCurrentStatus);
+        //alert(response[0].power_consumption);
+        //console.log(response[0].Anomaly[0]);
+        anomalyData = response[0].Anomaly;
+        setAnomalyData(anomalyData);
+        //console.log('running?');
+        //return anomalyData;
       })
       .catch(error => {
         console.log(`getting data error ${error}`);
@@ -434,24 +300,6 @@ export const AuthProvider = ({children}) => {
         console.log(`connection error ${error}`);
         setIsLoading(false);
       });
-  };
-
-  const isLoggedIn = async () => {
-    try {
-      setSplashLoading(true);
-
-      let userInfo = await AsyncStorage.getItem('userInfo');
-      userInfo = JSON.parse(userInfo);
-
-      if (userInfo) {
-        setUserInfo(userInfo);
-      }
-
-      setSplashLoading(false);
-    } catch (e) {
-      setSplashLoading(false);
-      console.log(`is logged in error ${e}`);
-    }
   };
 
   const isConnectedIn = async () => {
@@ -509,7 +357,7 @@ export const AuthProvider = ({children}) => {
         }
       })
       .catch(error => {
-        console.log(`getting data error ${error}`);
+        console.log(`2hellogetting data error ${error}`);
       });
   };
 
@@ -526,8 +374,10 @@ export const AuthProvider = ({children}) => {
   };
 
   useEffect(() => {
-    isLoggedIn();
+    //isLoggedIn();
     isConnectedIn();
+    displayGraphRadio(radioValue[0]);
+    detectAnomaly();
     //getData();
   }, []);
 
@@ -538,20 +388,30 @@ export const AuthProvider = ({children}) => {
         userInfo,
         timeInfo,
         pcInfo,
+
         splashLoading,
         pickerVal,
+        radioValue,
+
         rpiInfo,
         ipAddress,
         lastAnomalyTime,
         currentStatus,
         RPI_ip_address,
+
+        anomalyData,
+
         storeIp_address,
         logout,
-        getData_sec,
-        getData_min,
-        getData_hr,
+        getData,
+        getAnomalyData,
+
         displayTime,
+        getDataRadio,
+
         displayGraph,
+        displayGraphRadio,
+
         connectRpi,
         anomalyNotification,
         detectAnomaly,

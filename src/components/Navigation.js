@@ -4,9 +4,8 @@ import {View, Text, Image, StyleSheet, useWindowDimensions} from 'react-native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/HomeScreen';
-import LoginScreen from '../screens/LoginScreen';
-import RegisterScreen from '../screens/RegisterScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import LogScreen from '../screens/LogScreen';
 import AboutScreen from '../screens/AboutScreen';
 import ConnectScreen from '../screens/ConnectScreen';
 import ScanScreen from '../screens/ScanScreen';
@@ -80,6 +79,19 @@ const TabNavigator = () => {
           },
           tabBarIcon: ({color, size}) => (
             <Entypo name="home" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Anomaly Logs"
+        component={LogScreen}
+        options={{
+          tabBarLabel: 'ANOMALY LOGS',
+          tabBarOptions: {
+            showIcon: true,
+          },
+          tabBarIcon: ({color, size}) => (
+            <Entypo name="list" size={size} color={color} />
           ),
         }}
       />

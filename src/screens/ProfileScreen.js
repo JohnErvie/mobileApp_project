@@ -3,11 +3,12 @@ import {View, StyleSheet, Text, Button} from 'react-native';
 import {AuthContext} from '../context/AuthContext';
 
 const ProfileScreen = () => {
-  const {logout, userInfo} = useContext(AuthContext);
+  const {logout, rpiInfo} = useContext(AuthContext);
   return (
     <View style={styles.center}>
-      <Text style={styles.textBold}>Name: {userInfo.name}</Text>
-      <Text style={styles.textBold}>Email: {userInfo.email}</Text>
+      <Text style={styles.textBold}>
+        Raspberry Pi IP Address: {rpiInfo.ip_address}
+      </Text>
       <Button title="Logout" color="red" onPress={logout} />
     </View>
   );
