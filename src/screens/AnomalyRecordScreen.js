@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import {AuthContext} from '../context/AuthContext';
 
-const LogScreen = () => {
+const AnomalyRecordScreen = () => {
   const {anomalyData, getAnomalyData} = useContext(AuthContext);
 
   //on first mount, fetch data.
@@ -46,7 +46,7 @@ const LogScreen = () => {
   }) => (
     <TouchableOpacity onPress={onPress} style={[styles.item, backgroundColor]}>
       <Text style={[styles.title, textColor]}>
-        {sensor + '    '} {datetime + '   '} {power}
+        {sensor + '    '} {datetime.slice(0, 22) + '   '} {power}
       </Text>
     </TouchableOpacity>
   );
@@ -67,27 +67,30 @@ const LogScreen = () => {
   };
 
   return (
-    <View style={styles.center}>
-      <SafeAreaView style={styles.container}>
-        <View>
-          <Text style={[styles.headerText]}>
-            {'     Location\t\t\t\t\t\t\tDateTime\t\t\t\t\t\t\t\t\tPower'}
-          </Text>
-        </View>
-        <ScrollView
-          nestedScrollEnabled={true}
-          contentContainerStyle={styles.center}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }>
-          <View>
-            <ScrollView horizontal={true} style={{width: '100%'}}>
-              <FlatList data={anomalyData} renderItem={renderItem} />
-            </ScrollView>
+    <>
+      <View style={styles.center}>
+        <SafeAreaView style={styles.container}>
+          <View style={styles.header}>
+            <Text style={[styles.headerText]}>{'Location'}</Text>
+            <Text style={[styles.headerText]}>{'DateTime'}</Text>
+            <Text style={[styles.headerText]}>{'Power'}</Text>
           </View>
-        </ScrollView>
-      </SafeAreaView>
-    </View>
+
+          <ScrollView
+            nestedScrollEnabled={true}
+            contentContainerStyle={styles.center}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }>
+            <View>
+              <ScrollView horizontal={true} style={{width: '100%'}}>
+                <FlatList data={anomalyData} renderItem={renderItem} />
+              </ScrollView>
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      </View>
+    </>
   );
 };
 
@@ -97,10 +100,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     textAlign: 'center',
-  },
-  textBold: {
-    fontWeight: '500',
-    color: '#000',
   },
   container: {
     flex: 1,
@@ -118,7 +117,16 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 15,
     color: '#000000',
+    fontWeight: '500',
+  },
+  header: {
+    justifyContent: 'space-between',
+    alignContent: 'space-between',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    marginLeft: 20,
+    marginRight: 20,
   },
 });
 
-export default LogScreen;
+export default AnomalyRecordScreen;

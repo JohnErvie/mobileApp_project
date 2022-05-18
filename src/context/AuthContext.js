@@ -27,10 +27,15 @@ export const AuthProvider = ({children}) => {
 
   var [anomalyData, setAnomalyData] = useState([]);
 
+  // getting data usage
+  var [todayUsage, setTodayUsage] = useState(['']);
+  var [weekUsage, setWeekUsage] = useState(['']);
+  var [monthUsage, setMonthUsage] = useState(['']);
+
   const displayTime = option => {
     pickerVal[0] = option;
     setPickerVal(pickerVal);
-
+    displayGraphRadio(radioValue[0]);
     //console.log(pickerVal);
     //console.log('LOOP??' + pickerVal);
   };
@@ -95,11 +100,11 @@ export const AuthProvider = ({children}) => {
       displayGraph(pickerVal[0], rpiInfo.rpi_id, '0');
       //console.log(rpiInfo.rpi_id);
     } else if (radioVal == 'Sensor 1') {
-      displayGraph(pickerVal[0], '0', 'pzem1');
+      displayGraph(pickerVal[0], '0', 'Sensor 1');
     } else if (radioVal == 'Sensor 2') {
-      displayGraph(pickerVal[0], '0', 'pzem2');
+      displayGraph(pickerVal[0], '0', 'Sensor 2');
     } else if (radioVal == 'Sensor 3') {
-      displayGraph(pickerVal[0], '0', 'pzem3');
+      displayGraph(pickerVal[0], '0', 'Sensor 3');
     }
   };
 
@@ -222,6 +227,130 @@ export const AuthProvider = ({children}) => {
 
         getCurrentStatus = [];
         setGetCurrentStatus(getCurrentStatus);
+      })
+      .catch(error => {
+        console.log(`getting data error ${error}`);
+      });
+  };
+
+  const getDataUsage = time => {
+    //console.log(rpiInfo.rpi_id);
+
+    var InsertAPIURL = `${BASE_URL}/get_data_usage.php`;
+
+    var headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    };
+
+    var Data = {
+      rpi_id: rpiInfo.rpi_id, //
+      time: time,
+    };
+
+    fetch(InsertAPIURL, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(Data),
+    })
+      .then(response => response.json())
+      .then(response => {
+        //alert(response[0].power_consumption);
+        //console.log(response[0].Summary);
+        //console.log(response[0].Usage[0]);
+
+        var Summary = parseFloat(
+          response[0].Summary[0]['sum(power_consumption)'],
+        );
+        var dataUsage = response[0].Usage;
+
+        var usagelength = dataUsage.length;
+
+        for (let x = 0; x < usagelength; x++) {
+          dataUsage[x]['Percentage'] = String(
+            (
+              (parseFloat(dataUsage[x]['sum(power_consumption)']) / Summary) *
+              100
+            ).toFixed(2),
+          ); //adding the usage percentage
+          dataUsage[x]['Total'] = String(Summary);
+          dataUsage[x]['id'] = String(x);
+        }
+
+        //console.log(dataUsage);
+        if (time == 'day') {
+          todayUsage = dataUsage;
+          setTodayUsage(todayUsage);
+        } else if (time == 'week') {
+          weekUsage = dataUsage;
+          setWeekUsage(weekUsage);
+        } else if (time == 'month') {
+          monthUsage = dataUsage;
+          setMonthUsage(monthUsage);
+        }
+      })
+      .catch(error => {
+        console.log(`getting data error ${error}`);
+      });
+  };
+
+  const getDataInfoUsage = (time, sensor) => {
+    //console.log(rpiInfo.rpi_id);
+
+    var InsertAPIURL = `${BASE_URL}/get_info_usage.php`;
+
+    var headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    };
+
+    var Data = {
+      sensor: sensor, //
+      time: time,
+    };
+
+    fetch(InsertAPIURL, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(Data),
+    })
+      .then(response => response.json())
+      .then(response => {
+        //alert(response[0].power_consumption);
+        //console.log(response[0].Summary);
+        console.log(response[0].Usage[0]);
+
+        /*
+        var Summary = parseFloat(
+          response[0].Summary[0]['sum(power_consumption)'],
+        );
+        var dataUsage = response[0].Usage;
+
+        var usagelength = dataUsage.length;
+
+        for (let x = 0; x < usagelength; x++) {
+          dataUsage[x]['Percentage'] = String(
+            (
+              (parseFloat(dataUsage[x]['sum(power_consumption)']) / Summary) *
+              100
+            ).toFixed(2),
+          ); //adding the usage percentage
+          dataUsage[x]['Total'] = String(Summary);
+          dataUsage[x]['id'] = String(x);
+        }
+
+        //console.log(dataUsage);
+        if (time == 'day') {
+          todayUsage = dataUsage;
+          setTodayUsage(todayUsage);
+        } else if (time == 'week') {
+          weekUsage = dataUsage;
+          setWeekUsage(weekUsage);
+        } else if (time == 'month') {
+          monthUsage = dataUsage;
+          setMonthUsage(monthUsage);
+        }
+        */
       })
       .catch(error => {
         console.log(`getting data error ${error}`);
@@ -401,10 +530,16 @@ export const AuthProvider = ({children}) => {
 
         anomalyData,
 
+        todayUsage,
+        weekUsage,
+        monthUsage,
+
         storeIp_address,
         logout,
         getData,
+        getDataUsage,
         getAnomalyData,
+        getDataInfoUsage,
 
         displayTime,
         getDataRadio,

@@ -10,6 +10,8 @@ target 'mobileApp' do
 
   pod 'RNPermissions', :path => '../node_modules/react-native-permissions'
 
+  pod 'ReactNativeART', :path => '../node_modules/@react-native-community/art'
+
   post_integrate do |installer|
     begin
       expo_patch_react_imports!(installer)

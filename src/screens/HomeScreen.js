@@ -123,16 +123,18 @@ const HomeScreen = ({navigation}) => {
           <View style={{justifyContent: 'center', alignItems: 'center'}}>
             <Text style={styles.welcome}>Power Consumption Data</Text>
           </View>
-          <RadioButtonRN
-            data={data}
-            animationTypes={['shake']}
-            initial={1}
-            selectedBtn={e => {
-              getDataRadio(e);
-            }}
-            circleSize={16}
-            icon={<AntDesign name="checkcircle" size={22} color="black" />}
-          />
+          <View>
+            <RadioButtonRN
+              data={data}
+              animationTypes={['shake']}
+              initial={1}
+              selectedBtn={e => {
+                getDataRadio(e);
+              }}
+              circleSize={16}
+              icon={<AntDesign name="checkcircle" size={22} color="black" />}
+            />
+          </View>
 
           <Picker
             style={{height: 50, width: 150, color: '#000'}}
@@ -143,6 +145,36 @@ const HomeScreen = ({navigation}) => {
             <Picker.Item label="Hour" value="Hour" />
             <Picker.Item label="Month" value="Month" />
           </Picker>
+
+          <View
+            style={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              alignContent: 'center',
+              flexDirection: 'row',
+            }}>
+            <View style={[styles.dot, {backgroundColor: '#0ffc03'}]}></View>
+            <Text
+              style={{
+                textAlign: 'center',
+                color: '#000',
+                fontWeight: 'bold',
+                marginRight: 50,
+                marginLeft: 5,
+              }}>
+              {'Normal'}
+            </Text>
+            <View style={[styles.dot, {backgroundColor: '#fc0303'}]}></View>
+            <Text
+              style={{
+                textAlign: 'center',
+                color: '#000',
+                fontWeight: 'bold',
+                marginLeft: 5,
+              }}>
+              {'Anomaly'}
+            </Text>
+          </View>
 
           <LineChart
             data={{
@@ -173,6 +205,11 @@ const HomeScreen = ({navigation}) => {
 };
 
 const styles = StyleSheet.create({
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
   container: {
     flex: 1,
     //alignItems: 'center',

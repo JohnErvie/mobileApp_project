@@ -1,19 +1,23 @@
 import React, {useContext} from 'react';
 import {View, Text, Image, StyleSheet, useWindowDimensions} from 'react-native';
+import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/HomeScreen';
 import ProfileScreen from '../screens/ProfileScreen';
-import LogScreen from '../screens/LogScreen';
-import AboutScreen from '../screens/AboutScreen';
+import AnomalyRecordScreen from '../screens/AnomalyRecordScreen';
+import UsageTodayScreen from '../screens/UsageTodayScreen';
+import UsageWeekScreen from '../screens/UsageWeekScreen';
+import UsageMonthScreen from '../screens/UsageMonthScreen';
+import UsageInfoScreen from '../screens/UsageInfoScreen';
 import ConnectScreen from '../screens/ConnectScreen';
 import ScanScreen from '../screens/ScanScreen';
 import {AuthContext} from '../context/AuthContext';
 import SplashScreen from '../screens/SplashScreen';
 
 //icons
-import {Entypo, AntDesign} from '@expo/vector-icons';
+import {Entypo, AntDesign, MaterialIcons} from '@expo/vector-icons';
 
 import {
   createDrawerNavigator,
@@ -55,8 +59,69 @@ const DrawerNavigator = () => {
       }}>
       <Drawer.Screen name="Home" component={HomeScreen} />
       <Drawer.Screen name="Profile" component={ProfileScreen} />
-      <Drawer.Screen name="About" component={AboutScreen} />
     </Drawer.Navigator>
+  );
+};
+
+const UsageTab = createMaterialTopTabNavigator();
+
+const UsageTabNavigator = () => {
+  return (
+    <UsageTab.Navigator
+      initialRouteName="Today"
+      screenOptions={{
+        tabBarInactiveTintColor: '#000000',
+        tabBarLabelStyle: {fontSize: 12},
+        tabBarStyle: {backgroundColor: 'powderblue'},
+      }}
+      barStyle={{
+        backgroundColor: '#694fad', //Color of your choice
+        borderBottomColor: '#50d3a7',
+        borderBottomWidth: 2,
+      }}>
+      <UsageTab.Screen
+        name="Today"
+        component={UsageTodayScreen}
+        options={{
+          tabBarLabel: 'Today',
+          /*
+          tabBarOptions: {
+            showIcon: true,
+          },
+          tabBarIcon: ({color, size}) => (
+            <Entypo name="home" size={size} color={color} />
+          ),*/
+        }}
+      />
+      <UsageTab.Screen
+        name="Week"
+        component={UsageWeekScreen}
+        options={{
+          tabBarLabel: 'This week',
+          /*
+          tabBarOptions: {
+            showIcon: true,
+          },
+          tabBarIcon: ({color, size}) => (
+            <Entypo name="home" size={size} color={color} />
+          ),*/
+        }}
+      />
+      <UsageTab.Screen
+        name="Month"
+        component={UsageMonthScreen}
+        options={{
+          tabBarLabel: 'This month',
+          /*
+          tabBarOptions: {
+            showIcon: true,
+          },
+          tabBarIcon: ({color, size}) => (
+            <Entypo name="home" size={size} color={color} />
+          ),*/
+        }}
+      />
+    </UsageTab.Navigator>
   );
 };
 
@@ -83,10 +148,10 @@ const TabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="Anomaly Logs"
-        component={LogScreen}
+        name="Anomaly Records"
+        component={AnomalyRecordScreen}
         options={{
-          tabBarLabel: 'ANOMALY LOGS',
+          tabBarLabel: 'ANOMALY RECORD',
           tabBarOptions: {
             showIcon: true,
           },
@@ -95,6 +160,20 @@ const TabNavigator = () => {
           ),
         }}
       />
+      <Tab.Screen
+        name="Power Usage"
+        component={UsageTabNavigator}
+        options={{
+          tabBarLabel: 'POWER USAGE',
+          tabBarOptions: {
+            showIcon: true,
+          },
+          tabBarIcon: ({color, size}) => (
+            <MaterialIcons name="data-usage" size={size} color={color} />
+          ),
+        }}
+      />
+
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}
@@ -105,19 +184,6 @@ const TabNavigator = () => {
           },
           tabBarIcon: ({color, size}) => (
             <AntDesign name="profile" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="About"
-        component={AboutScreen}
-        options={{
-          tabBarLabel: 'ABOUT',
-          tabBarOptions: {
-            showIcon: true,
-          },
-          tabBarIcon: ({color, size}) => (
-            <Entypo name="info-with-circle" size={size} color={color} />
           ),
         }}
       />
@@ -171,11 +237,19 @@ const Navigation = () => {
           options={{headerShown: false}}
         />
         */
-        <Stack.Screen
-          name="HomeStack"
-          component={TabNavigator}
-          options={{headerShown: false}}
-        />
+        <>
+          <Stack.Screen
+            name="HomeStack"
+            component={TabNavigator}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="UsageInfo"
+            component={UsageInfoScreen}
+            //options={{headerShown: true}}
+            options={({route}) => ({title: route.params.name})}
+          />
+        </>
       ) : (
         <>
           <Stack.Screen
