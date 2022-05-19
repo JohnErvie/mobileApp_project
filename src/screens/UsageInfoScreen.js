@@ -47,6 +47,12 @@ const UsageInfoScreen = ({navigation, route}) => {
   const {dotUsage, getDataInfoUsage, infoUsage, timeUsage} =
     useContext(AuthContext);
 
+  var DATA = [];
+
+  for (let x = 0; x < infoUsage.length; x++) {
+    DATA.push(parseFloat(infoUsage[x]));
+  }
+
   // for donut chart
   const radius = 70;
   const circleCircumference = 2 * Math.PI * radius;
@@ -245,15 +251,17 @@ const UsageInfoScreen = ({navigation, route}) => {
                   labels: timeUsage,
                   datasets: [
                     {
-                      data: infoUsage,
+                      data: DATA,
                       color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`, // optional
                       strokeWidth: 2, // optional
                     },
                   ],
                   //legend: ["Rainy Days"] // optional
                 }}
+                yAxisSuffix={time === 'day' ? 'W' : 'KW'}
+                verticalLabelRotation={360 - 30}
                 width={screenWidth}
-                height={220}
+                height={280}
                 chartConfig={chartConfig}
                 getDotColor={(dataPoint, dataPointIndex) => {
                   //console.log(currentStatus);
@@ -318,18 +326,44 @@ const styles = StyleSheet.create({
 });
 
 const chartConfig = {
-  backgroundGradientFrom: '#1E2923',
-  backgroundGradientFromOpacity: 0,
-  backgroundGradientTo: '#08130D',
-  backgroundGradientToOpacity: 0.5,
-  color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
+  backgroundColor: '#fff000',
+  backgroundGradientFrom: '#ffffff',
+  backgroundGradientTo: '#fffffa',
+  color: (opacity = 1) => `rgba(105, 105, 105, ${opacity})`,
+  decimalPlaces: 0,
+  linejoinType: 'round',
+  scrollableDotFill: '#fff',
+  scrollableDotRadius: 6,
+  scrollableDotStrokeColor: 'tomato',
+  scrollableDotStrokeWidth: 3,
+  scrollableInfoViewStyle: {
+    justifyContent: 'center',
+    alignContent: 'center',
+    backgroundColor: '#121212',
+    borderRadius: 2,
+  },
+  scrollableInfoTextStyle: {
+    fontSize: 10,
+    color: '#C4C4C4',
+    marginHorizontal: 2,
+    flex: 1,
+    textAlign: 'center',
+  },
+  scrollableInfoSize: {width: 30, height: 30},
+  scrollableInfoOffset: 15,
   labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-  strokeWidth: 2, // optional, default 3
-  barPercentage: 0.5,
-  useShadowColorFromDataset: false, // optional
+  color: (opacity = 1) => `rgb(78, 135, 210, ${opacity})`,
+  style: {
+    borderRadius: 16,
+    borderLeftWidth: 50,
+    borderStyle: 'solid',
+  },
   propsForLabels: {
     fontFamily: 'MontserratBold',
     fontSize: 9,
+    fontWeight: 'bold',
+    strokeDasharray: '', // solid background lines with no dashes
+    strokeDashoffset: 15,
   },
 };
 
