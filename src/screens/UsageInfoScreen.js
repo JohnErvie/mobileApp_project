@@ -21,6 +21,7 @@ const UsageInfoScreen = ({navigation, route}) => {
   const Percentage = route.params.item.Percentage;
   const id = route.params.item.id;
   const sensor = route.params.item.sensor;
+  const Sensorname = route.params.item.sname;
   const total = String((parseFloat(route.params.item.Total) / 100).toFixed(2));
   const sum = String(
     (parseFloat(route.params.item['sum(power_consumption)']) / 100).toFixed(2),
@@ -62,7 +63,6 @@ const UsageInfoScreen = ({navigation, route}) => {
   //on first mount, fetch data.
   useEffect(() => {
     getDataInfoUsage(time, sensor);
-    //console.log(anomalyData);
   }, []);
 
   //for refreshing the page
@@ -88,7 +88,7 @@ const UsageInfoScreen = ({navigation, route}) => {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }>
           <View style={styles.sensorText}>
-            <Text style={styles.textBold}>{sensor}</Text>
+            <Text style={styles.textBold}>{Sensorname}</Text>
             <Text style={{fontSize: 11, color: '#6b6c6e', marginLeft: 10}}>
               {date}
             </Text>
@@ -238,6 +238,7 @@ const UsageInfoScreen = ({navigation, route}) => {
                 {'Anomaly'}
               </Text>
             </View>
+
             <View>
               <LineChart
                 data={{
@@ -292,7 +293,7 @@ const styles = StyleSheet.create({
   textBold: {
     fontWeight: 'bold',
     color: '#000',
-    fontSize: 40,
+    fontSize: 35,
   },
   sensorText: {
     justifyContent: 'flex-start',

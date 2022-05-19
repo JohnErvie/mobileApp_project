@@ -38,6 +38,9 @@ export const AuthProvider = ({children}) => {
   var [timeUsage, setTimeUsage] = useState(['']);
   var [dotUsage, setDotUsage] = useState(['']);
 
+  //for sensors
+  const [sensorInfo, setSensorInfo] = useState({});
+
   //function to convert from 24 hr to 12 hr format
   function tConvert(time) {
     // Check correct time format and split into components
@@ -121,7 +124,7 @@ export const AuthProvider = ({children}) => {
         return response;
       })
       .catch(error => {
-        console.log(`logout error ${error}`);
+        console.log(`Store IP Address error ${error}`);
         throw error;
       });
     //navigation.navigate('Password');
@@ -142,12 +145,14 @@ export const AuthProvider = ({children}) => {
     if (radioVal == 'Summary') {
       displayGraph(pickerVal[0], rpiInfo.rpi_id, '0');
       //console.log(rpiInfo.rpi_id);
-    } else if (radioVal == 'Sensor 1') {
+    } else if (radioVal == sensorInfo.sensor1) {
       displayGraph(pickerVal[0], '0', 'Sensor 1');
-    } else if (radioVal == 'Sensor 2') {
+    } else if (radioVal == sensorInfo.sensor2) {
       displayGraph(pickerVal[0], '0', 'Sensor 2');
-    } else if (radioVal == 'Sensor 3') {
+    } else if (radioVal == sensorInfo.sensor3) {
       displayGraph(pickerVal[0], '0', 'Sensor 3');
+    } else if (radioVal == sensorInfo.sensor4) {
+      displayGraph(pickerVal[0], '0', 'Sensor 4');
     }
   };
 
@@ -219,10 +224,6 @@ export const AuthProvider = ({children}) => {
         //console.log(response[0].Message);
 
         for (let x = response[0].power_consumption.length - 1; x >= 0; x--) {
-          dataPC.push(
-            response[0].power_consumption[x]['sum(power_consumption)'],
-          );
-
           let datetime =
             response[0].power_consumption[x]['datetime'].split(' ');
           let dateOnly = datetime[0];
@@ -230,6 +231,10 @@ export const AuthProvider = ({children}) => {
           let timeOnly = datetime[1].slice(0, 8);
 
           if (time == 'minute(datetime)') {
+            dataPC.push(
+              response[0].power_consumption[x]['sum(power_consumption)'],
+            );
+
             //converting to minutes
             let converted = tConvert(timeOnly);
             let splitConverted = converted.split(':');
@@ -241,6 +246,14 @@ export const AuthProvider = ({children}) => {
 
             dataTime.push(modifiedTime);
           } else if (time == 'hour(datetime)') {
+            dataPC.push(
+              String(
+                parseFloat(
+                  response[0].power_consumption[x]['sum(power_consumption)'],
+                ) / 1000,
+              ),
+            );
+
             //converting to hours
             let converted = tConvert(timeOnly);
             let splitConverted = converted.split(':');
@@ -248,6 +261,14 @@ export const AuthProvider = ({children}) => {
               splitConverted[0] + converted.slice(-2, converted.length); //ex. 3AM
             dataTime.push(modifiedTime);
           } else if (time == 'month(datetime)') {
+            dataPC.push(
+              String(
+                parseFloat(
+                  response[0].power_consumption[x]['sum(power_consumption)'],
+                ) / 1000,
+              ),
+            );
+
             //converting to month
             var objDate = new Date(dateOnly);
             var strDate = objDate.toLocaleString('en', {month: 'short'}); // {month:'long'}
@@ -429,7 +450,7 @@ export const AuthProvider = ({children}) => {
             //console.log(modifiedTime);
           } else if (time == 'month') {
             dataTimeUsage.push(weekOfTheMonth(dateOnly));
-            console.log(weekOfTheMonth(dateOnly));
+            //console.log(weekOfTheMonth(dateOnly));
           }
 
           if (
@@ -452,9 +473,9 @@ export const AuthProvider = ({children}) => {
         timeUsage = dataTimeUsage;
         setTimeUsage(timeUsage);
 
-        //console.log(infoUsage);
-        //console.log(timeUsage);
-        //console.log(dotUsage);
+        console.log(infoUsage);
+        console.log(timeUsage);
+        console.log(dotUsage);
       })
       .catch(error => {
         console.log(`getting data error ${error}`);
@@ -497,7 +518,7 @@ export const AuthProvider = ({children}) => {
   const connectRpi = password => {
     setIsLoading(true);
 
-    console.log(password);
+    //console.log(password);
 
     var InsertAPIURL = `${BASE_URL}/connect_rpi.php`;
 
@@ -518,13 +539,57 @@ export const AuthProvider = ({children}) => {
     })
       .then(response => response.json())
       .then(response => {
-        alert(response[0].Message);
+        //alert(response[0].Message);
         console.log(response[0].Message);
         if (response[0].Data != null) {
           let rpiInfo = response[0].Data;
           console.log(rpiInfo);
           setRpiInfo(rpiInfo);
           AsyncStorage.setItem('rpiInfo', JSON.stringify(rpiInfo));
+          setIsLoading(false);
+          //getData();
+        }
+      })
+      .catch(error => {
+        console.log(`connection error ${error}`);
+        setIsLoading(false);
+      });
+  };
+
+  const sensorName = (rpi_id, s1, s2, s3, s4) => {
+    setIsLoading(true);
+
+    //console.log(password);
+
+    var InsertAPIURL = `${BASE_URL}/sensor_names.php`;
+
+    var headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    };
+
+    var Data = {
+      rpi_id: rpi_id,
+      sensor1: s1,
+      sensor2: s2,
+      sensor3: s3,
+      sensor4: s4,
+    };
+
+    fetch(InsertAPIURL, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(Data),
+    })
+      .then(response => response.json())
+      .then(response => {
+        //alert(response[0].Message);
+        //console.log(response[0].Message);
+        if (response[0].Data != null) {
+          let sensorInfo = response[0].Data;
+          //console.log(sensorInfo);
+          setSensorInfo(sensorInfo);
+          AsyncStorage.setItem('sensorInfo', JSON.stringify(sensorInfo));
           setIsLoading(false);
           //getData();
         }
@@ -544,6 +609,13 @@ export const AuthProvider = ({children}) => {
 
       if (rpiInfo) {
         setRpiInfo(rpiInfo);
+      }
+
+      let sensorInfo = await AsyncStorage.getItem('sensorInfo');
+      sensorInfo = JSON.parse(sensorInfo);
+
+      if (sensorInfo) {
+        setSensorInfo(sensorInfo);
       }
 
       setSplashLoading(false);
@@ -609,8 +681,8 @@ export const AuthProvider = ({children}) => {
   useEffect(() => {
     //isLoggedIn();
     isConnectedIn();
-    displayGraphRadio(radioValue[0]);
-    detectAnomaly();
+    //displayGraphRadio(radioValue[0]);
+    //detectAnomaly();
     //getData();
   }, []);
 
@@ -642,6 +714,8 @@ export const AuthProvider = ({children}) => {
         timeUsage,
         dotUsage,
 
+        sensorInfo,
+
         storeIp_address,
         logout,
         getData,
@@ -658,6 +732,8 @@ export const AuthProvider = ({children}) => {
         connectRpi,
         anomalyNotification,
         detectAnomaly,
+
+        sensorName,
       }}>
       {children}
     </AuthContext.Provider>

@@ -13,6 +13,7 @@ import UsageMonthScreen from '../screens/UsageMonthScreen';
 import UsageInfoScreen from '../screens/UsageInfoScreen';
 import ConnectScreen from '../screens/ConnectScreen';
 import ScanScreen from '../screens/ScanScreen';
+import AddSensorScreen from '../screens/AddSensorScreen';
 import {AuthContext} from '../context/AuthContext';
 import SplashScreen from '../screens/SplashScreen';
 
@@ -219,7 +220,7 @@ const styles = StyleSheet.create({
 });
 
 const Navigation = () => {
-  const {userInfo, rpiInfo, splashLoading} = useContext(AuthContext);
+  const {rpiInfo, splashLoading, sensorInfo} = useContext(AuthContext);
 
   return (
     <Stack.Navigator>
@@ -237,19 +238,27 @@ const Navigation = () => {
           options={{headerShown: false}}
         />
         */
-        <>
+        sensorInfo.sensor1 ? (
+          <>
+            <Stack.Screen
+              name="HomeStack"
+              component={TabNavigator}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="UsageInfo"
+              component={UsageInfoScreen}
+              //options={{headerShown: true}}
+              options={({route}) => ({title: route.params.name})}
+            />
+          </>
+        ) : (
           <Stack.Screen
-            name="HomeStack"
-            component={TabNavigator}
+            name="AddSensorName"
+            component={AddSensorScreen}
             options={{headerShown: false}}
           />
-          <Stack.Screen
-            name="UsageInfo"
-            component={UsageInfoScreen}
-            //options={{headerShown: true}}
-            options={({route}) => ({title: route.params.name})}
-          />
-        </>
+        )
       ) : (
         <>
           <Stack.Screen

@@ -48,6 +48,7 @@ const UsageMonthScreen = ({navigation}) => {
     percentage,
     backgroundColor,
     textColor,
+    name,
   }) => (
     <TouchableOpacity
       onPress={() =>
@@ -58,7 +59,7 @@ const UsageMonthScreen = ({navigation}) => {
         })
       }
       style={[styles.item, backgroundColor]}>
-      <Text style={[styles.title, textColor]}>{sensor}</Text>
+      <Text style={[styles.title, textColor]}>{name}</Text>
       <Text style={[styles.title, textColor]}>
         {(parseFloat(usage) / 1000).toFixed(2) + ' KW'}
       </Text>
@@ -74,6 +75,7 @@ const UsageMonthScreen = ({navigation}) => {
       <Item
         time={{time: 'month'}}
         item={item}
+        name={item.sname}
         sensor={item.sensor}
         usage={item['sum(power_consumption)']}
         percentage={item.Percentage}

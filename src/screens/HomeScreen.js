@@ -44,6 +44,11 @@ const HomeScreen = ({navigation}) => {
     currentStatus,
     setCurrentStatus,
     getDataInfoUsage,
+
+    timeUsage,
+    infoUsage,
+
+    sensorInfo,
   } = useContext(AuthContext);
 
   const [data, setData] = React.useState([
@@ -51,13 +56,16 @@ const HomeScreen = ({navigation}) => {
       label: 'Summary',
     },
     {
-      label: 'Sensor 1',
+      label: sensorInfo.sensor1,
     },
     {
-      label: 'Sensor 2',
+      label: sensorInfo.sensor2,
     },
     {
-      label: 'Sensor 3',
+      label: sensorInfo.sensor3,
+    },
+    {
+      label: sensorInfo.sensor4,
     },
   ]);
 
@@ -83,7 +91,9 @@ const HomeScreen = ({navigation}) => {
         //you async action is here
         if (componentMountedDetection) {
           detectAnomaly();
+
           //getDataInfoUsage('day', 'Sensor 1');
+          //console.log(timeUsage, infoUsage);
         }
       };
       fetchDataDetection();
@@ -177,29 +187,35 @@ const HomeScreen = ({navigation}) => {
               {'Anomaly'}
             </Text>
           </View>
-
-          <LineChart
-            data={{
-              labels: timeInfo,
-              datasets: [
-                {
-                  data: pcInfo,
-                  color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`, // optional
-                  strokeWidth: 2, // optional
-                },
-              ],
-              //legend: ["Rainy Days"] // optional
-            }}
-            width={screenWidth}
-            height={280}
-            chartConfig={pickerVal[0] === 'Minute' ? chartConfig2 : chartConfig}
-            getDotColor={(dataPoint, dataPointIndex) => {
-              //console.log(currentStatus);
-              if (currentStatus[dataPointIndex] == 'Anomaly') return '#ff0000';
-              // red
-              else return '#00ff00'; // green
-            }}
-          />
+          <View>
+            <LineChart
+              data={{
+                labels: timeInfo,
+                datasets: [
+                  {
+                    data: pcInfo,
+                    color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`, // optional
+                    strokeWidth: 2, // optional
+                  },
+                ],
+                //legend: ["Rainy Days"] // optional
+              }}
+              yAxisSuffix={pickerVal[0] === 'Minute' ? 'W' : 'KW'}
+              verticalLabelRotation={360 - 30}
+              width={screenWidth}
+              height={280}
+              chartConfig={
+                pickerVal[0] === 'Minute' ? chartConfig2 : chartConfig
+              }
+              getDotColor={(dataPoint, dataPointIndex) => {
+                //console.log(currentStatus);
+                if (currentStatus[dataPointIndex] == 'Anomaly')
+                  return '#ff0000';
+                // red
+                else return '#00ff00'; // green
+              }}
+            />
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -224,6 +240,91 @@ const styles = StyleSheet.create({
   },
 });
 
+const chartConfig = {
+  backgroundColor: '#fff000',
+  backgroundGradientFrom: '#ffffff',
+  backgroundGradientTo: '#fffffa',
+  color: (opacity = 1) => `rgba(105, 105, 105, ${opacity})`,
+  decimalPlaces: 0,
+  linejoinType: 'round',
+  scrollableDotFill: '#fff',
+  scrollableDotRadius: 6,
+  scrollableDotStrokeColor: 'tomato',
+  scrollableDotStrokeWidth: 3,
+  scrollableInfoViewStyle: {
+    justifyContent: 'center',
+    alignContent: 'center',
+    backgroundColor: '#121212',
+    borderRadius: 2,
+  },
+  scrollableInfoTextStyle: {
+    fontSize: 10,
+    color: '#C4C4C4',
+    marginHorizontal: 2,
+    flex: 1,
+    textAlign: 'center',
+  },
+  scrollableInfoSize: {width: 30, height: 30},
+  scrollableInfoOffset: 15,
+  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+  color: (opacity = 1) => `rgb(78, 135, 210, ${opacity})`,
+  style: {
+    borderRadius: 16,
+    borderLeftWidth: 50,
+    borderStyle: 'solid',
+  },
+  propsForLabels: {
+    fontFamily: 'MontserratBold',
+    fontSize: 9,
+    fontWeight: 'bold',
+    strokeDasharray: '', // solid background lines with no dashes
+    strokeDashoffset: 15,
+  },
+};
+
+const chartConfig2 = {
+  backgroundColor: '#fff000',
+  backgroundGradientFrom: '#ffffff',
+  backgroundGradientTo: '#fffffa',
+  color: (opacity = 1) => `rgba(105, 105, 105, ${opacity})`,
+  decimalPlaces: 0,
+  linejoinType: 'round',
+  scrollableDotFill: '#fff',
+  scrollableDotRadius: 6,
+  scrollableDotStrokeColor: 'tomato',
+  scrollableDotStrokeWidth: 3,
+  scrollableInfoViewStyle: {
+    justifyContent: 'center',
+    alignContent: 'center',
+    backgroundColor: '#121212',
+    borderRadius: 2,
+  },
+  scrollableInfoTextStyle: {
+    fontSize: 10,
+    color: '#C4C4C4',
+    marginHorizontal: 2,
+    flex: 1,
+    textAlign: 'center',
+  },
+  scrollableInfoSize: {width: 30, height: 30},
+  scrollableInfoOffset: 15,
+  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+  color: (opacity = 1) => `rgb(78, 135, 210, ${opacity})`,
+  style: {
+    borderRadius: 16,
+    borderLeftWidth: 50,
+    borderStyle: 'solid',
+  },
+  propsForLabels: {
+    fontFamily: 'MontserratBold',
+    fontSize: 7,
+    fontWeight: 'bold',
+    strokeDasharray: '', // solid background lines with no dashes
+    strokeDashoffset: 15,
+  },
+};
+
+/*
 const chartConfig = {
   backgroundGradientFrom: '#1E2923',
   backgroundGradientFromOpacity: 0,
@@ -255,5 +356,5 @@ const chartConfig2 = {
     fontSize: 7,
   },
 };
-
+*/
 export default HomeScreen;
