@@ -43,6 +43,7 @@ const HomeScreen = ({navigation}) => {
     rpiInfo,
     currentStatus,
     setCurrentStatus,
+    getDataInfoUsage,
   } = useContext(AuthContext);
 
   const [data, setData] = React.useState([
@@ -82,6 +83,7 @@ const HomeScreen = ({navigation}) => {
         //you async action is here
         if (componentMountedDetection) {
           detectAnomaly();
+          //getDataInfoUsage('day', 'Sensor 1');
         }
       };
       fetchDataDetection();
@@ -189,8 +191,8 @@ const HomeScreen = ({navigation}) => {
               //legend: ["Rainy Days"] // optional
             }}
             width={screenWidth}
-            height={220}
-            chartConfig={chartConfig}
+            height={280}
+            chartConfig={pickerVal[0] === 'Minute' ? chartConfig2 : chartConfig}
             getDotColor={(dataPoint, dataPointIndex) => {
               //console.log(currentStatus);
               if (currentStatus[dataPointIndex] == 'Anomaly') return '#ff0000';
@@ -235,6 +237,22 @@ const chartConfig = {
   propsForLabels: {
     fontFamily: 'MontserratBold',
     fontSize: 9,
+  },
+};
+
+const chartConfig2 = {
+  backgroundGradientFrom: '#1E2923',
+  backgroundGradientFromOpacity: 0,
+  backgroundGradientTo: '#08130D',
+  backgroundGradientToOpacity: 0.5,
+  color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
+  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+  strokeWidth: 2, // optional, default 3
+  barPercentage: 0.5,
+  useShadowColorFromDataset: false, // optional
+  propsForLabels: {
+    fontFamily: 'MontserratBold',
+    fontSize: 7,
   },
 };
 

@@ -4,6 +4,8 @@ import {BASE_URL} from '../config';
 import {Alert} from 'react-native';
 import PushNotification from 'react-native-push-notification';
 
+//import getWeekOfMonth from 'date-fns/getWeekOfMonth';
+
 export const AuthContext = createContext();
 
 export const AuthProvider = ({children}) => {
@@ -31,6 +33,47 @@ export const AuthProvider = ({children}) => {
   var [todayUsage, setTodayUsage] = useState(['']);
   var [weekUsage, setWeekUsage] = useState(['']);
   var [monthUsage, setMonthUsage] = useState(['']);
+
+  var [infoUsage, setInfoUsage] = useState([0]);
+  var [timeUsage, setTimeUsage] = useState(['']);
+  var [dotUsage, setDotUsage] = useState(['']);
+
+  //function to convert from 24 hr to 12 hr format
+  function tConvert(time) {
+    // Check correct time format and split into components
+    time = time
+      .toString()
+      .match(/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [time];
+
+    if (time.length > 1) {
+      // If time format correct
+      time = time.slice(1); // Remove full string match value
+      time[5] = +time[0] < 12 ? 'AM' : 'PM'; // Set AM/PM
+      time[0] = +time[0] % 12 || 12; // Adjust hours
+    }
+    return time.join(''); // return adjusted time or original string
+  }
+
+  function dayNameConvert(date) {
+    //var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    var d = new Date(date);
+    //var dayName = days[d.getDay()];
+
+    var dayName = d.toString().split(' ')[0];
+
+    return dayName;
+  }
+
+  //get the week number of month
+  function weekOfTheMonth(date) {
+    var dated = new Date(date);
+    const day = dated.getDate();
+    let week = Math.ceil(day / 7);
+
+    const ordinal = ['1st', '2nd', '3rd', '4th', 'Last'];
+
+    return `${ordinal[week - 1]}`;
+  }
 
   const displayTime = option => {
     pickerVal[0] = option;
@@ -174,11 +217,45 @@ export const AuthProvider = ({children}) => {
         var dataTime = [];
         var status = [];
         //console.log(response[0].Message);
+
         for (let x = response[0].power_consumption.length - 1; x >= 0; x--) {
           dataPC.push(
             response[0].power_consumption[x]['sum(power_consumption)'],
           );
-          dataTime.push(response[0].power_consumption[x][time]);
+
+          let datetime =
+            response[0].power_consumption[x]['datetime'].split(' ');
+          let dateOnly = datetime[0];
+
+          let timeOnly = datetime[1].slice(0, 8);
+
+          if (time == 'minute(datetime)') {
+            //converting to minutes
+            let converted = tConvert(timeOnly);
+            let splitConverted = converted.split(':');
+            let modifiedTime =
+              splitConverted[0] +
+              ':' +
+              splitConverted[1] +
+              converted.slice(-2, converted.length); //ex. 3AM
+
+            dataTime.push(modifiedTime);
+          } else if (time == 'hour(datetime)') {
+            //converting to hours
+            let converted = tConvert(timeOnly);
+            let splitConverted = converted.split(':');
+            let modifiedTime =
+              splitConverted[0] + converted.slice(-2, converted.length); //ex. 3AM
+            dataTime.push(modifiedTime);
+          } else if (time == 'month(datetime)') {
+            //converting to month
+            var objDate = new Date(dateOnly);
+            var strDate = objDate.toLocaleString('en', {month: 'short'}); // {month:'long'}
+            let splitedDate = strDate.split(' ');
+            //console.log(splitedDate[1]);
+            dataTime.push(splitedDate[1]);
+          }
+
           status.push(
             response[0].power_consumption[x][
               'sum(power_consumption_anomaly_score)'
@@ -318,39 +395,66 @@ export const AuthProvider = ({children}) => {
       .then(response => {
         //alert(response[0].power_consumption);
         //console.log(response[0].Summary);
-        console.log(response[0].Usage[0]);
+        //console.log(response[0].Usage);
 
-        /*
-        var Summary = parseFloat(
-          response[0].Summary[0]['sum(power_consumption)'],
-        );
         var dataUsage = response[0].Usage;
 
         var usagelength = dataUsage.length;
 
-        for (let x = 0; x < usagelength; x++) {
-          dataUsage[x]['Percentage'] = String(
-            (
-              (parseFloat(dataUsage[x]['sum(power_consumption)']) / Summary) *
-              100
-            ).toFixed(2),
-          ); //adding the usage percentage
-          dataUsage[x]['Total'] = String(Summary);
-          dataUsage[x]['id'] = String(x);
+        var dataInfoUsage = [];
+        var dataTimeUsage = [];
+
+        var getDotUsage = [];
+
+        for (let x = usagelength - 1; x >= 0; x--) {
+          dataInfoUsage.push(
+            parseFloat(dataUsage[x]['sum(power_consumption)']).toFixed(2),
+          );
+
+          let datetime = dataUsage[x]['datetime'].split(' ');
+          let dateOnly = datetime[0];
+
+          let timeOnly = datetime[1].slice(0, 8);
+
+          if (time == 'day') {
+            let converted = tConvert(timeOnly);
+            let splitConverted = converted.split(':');
+            let modifiedTime =
+              splitConverted[0] + converted.slice(-2, converted.length); //ex. 3AM
+            dataTimeUsage.push(modifiedTime);
+            //console.log(modifiedTime);
+          } else if (time == 'week') {
+            let converted = dayNameConvert(dateOnly); //ex. mon
+            dataTimeUsage.push(converted);
+            //console.log(modifiedTime);
+          } else if (time == 'month') {
+            dataTimeUsage.push(weekOfTheMonth(dateOnly));
+            console.log(weekOfTheMonth(dateOnly));
+          }
+
+          if (
+            parseInt(dataUsage[x]['sum(power_consumption_anomaly_score)']) != 0
+          ) {
+            getDotUsage.push('Anomaly');
+          } else {
+            getDotUsage.push('Normal');
+          }
         }
 
-        //console.log(dataUsage);
-        if (time == 'day') {
-          todayUsage = dataUsage;
-          setTodayUsage(todayUsage);
-        } else if (time == 'week') {
-          weekUsage = dataUsage;
-          setWeekUsage(weekUsage);
-        } else if (time == 'month') {
-          monthUsage = dataUsage;
-          setMonthUsage(monthUsage);
-        }
-        */
+        dotUsage = getDotUsage;
+        setDotUsage(dotUsage);
+
+        getDotUsage = []; //to clear
+
+        infoUsage = dataInfoUsage;
+        setInfoUsage(infoUsage);
+
+        timeUsage = dataTimeUsage;
+        setTimeUsage(timeUsage);
+
+        //console.log(infoUsage);
+        //console.log(timeUsage);
+        //console.log(dotUsage);
       })
       .catch(error => {
         console.log(`getting data error ${error}`);
@@ -533,6 +637,10 @@ export const AuthProvider = ({children}) => {
         todayUsage,
         weekUsage,
         monthUsage,
+
+        infoUsage,
+        timeUsage,
+        dotUsage,
 
         storeIp_address,
         logout,

@@ -1,5 +1,13 @@
 import React, {useContext, useState, useEffect} from 'react';
-import {View, StyleSheet, Text, Button} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Text,
+  Button,
+  SafeAreaView,
+  ScrollView,
+  RefreshControl,
+} from 'react-native';
 import {AuthContext} from '../context/AuthContext';
 
 import {LineChart} from 'react-native-chart-kit';
@@ -34,21 +42,8 @@ const UsageInfoScreen = ({navigation, route}) => {
 
   var date = new Date().toLocaleString();
 
-  var DATA = [
-    {
-      name: sensor,
-      value: 20,
-      color: 'blue',
-    },
-    {
-      name: sensor,
-      value: 80,
-      color: 'blue',
-    },
-  ];
-
   // from AuthContext
-  const {pcInfo, timeInfo, currentStatus, getDataInfoUsage} =
+  const {dotUsage, getDataInfoUsage, infoUsage, timeUsage} =
     useContext(AuthContext);
 
   // for donut chart
@@ -70,178 +65,206 @@ const UsageInfoScreen = ({navigation, route}) => {
     //console.log(anomalyData);
   }, []);
 
+  //for refreshing the page
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const wait = timeout => {
+    return new Promise(resolve => setTimeout(resolve, timeout));
+  };
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    wait(0).then(() => {
+      setRefreshing(false);
+      getDataInfoUsage(time, sensor);
+    });
+  }, []);
+
   return (
     <>
-      <View style={styles.sensorText}>
-        <Text style={styles.textBold}>{sensor}</Text>
-        <Text style={{fontSize: 11, color: '#6b6c6e', marginLeft: 10}}>
-          {date}
-        </Text>
-      </View>
-      <View>
-        <View style={styles.usageContainer}>
-          <Text style={styles.usageText}>{sum + ' KW'}</Text>
-          <Text style={{fontSize: 15, color: '#6b6c6e', marginTop: 10}}>
-            {'/' + total + ' KW'}
-          </Text>
-        </View>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignItems: 'center',
-            alignContent: 'center',
-          }}>
+      <SafeAreaView>
+        <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }>
+          <View style={styles.sensorText}>
+            <Text style={styles.textBold}>{sensor}</Text>
+            <Text style={{fontSize: 11, color: '#6b6c6e', marginLeft: 10}}>
+              {date}
+            </Text>
+          </View>
           <View>
-            <View style={styles.graphWrapper}>
-              <Svg height="100" width="100" viewBox="0 0 180 180">
-                <G rotation={-90} originX="90" originY="90">
-                  {total === 0 ? (
-                    <Circle
-                      cx="50%"
-                      cy="50%"
-                      r={radius}
-                      stroke="#F1F6F9"
-                      fill="transparent"
-                      strokeWidth="40"
-                    />
-                  ) : (
-                    <>
-                      <Circle
-                        cx="50%"
-                        cy="50%"
-                        r={radius}
-                        stroke="#717572"
-                        fill="transparent"
-                        strokeWidth="40"
-                        strokeDasharray={circleCircumference}
-                        strokeDashoffset={totalStrokeDashoffset}
-                        rotation={360}
-                        originX="90"
-                        originY="90"
-                        strokeLinecap="round"
-                      />
-                      <Circle
-                        cx="50%"
-                        cy="50%"
-                        r={radius}
-                        stroke="#F05454"
-                        fill="transparent"
-                        strokeWidth="40"
-                        strokeDasharray={circleCircumference}
-                        strokeDashoffset={percentageStrokeDashoffset}
-                        rotation={0}
-                        originX="90"
-                        originY="90"
-                        strokeLinecap="round"
-                      />
-                    </>
-                  )}
-                </G>
-              </Svg>
-              <Text style={styles.label}>{Percentage}%</Text>
+            <View style={styles.usageContainer}>
+              <Text style={styles.usageText}>{sum + ' KW'}</Text>
+              <Text style={{fontSize: 15, color: '#6b6c6e', marginTop: 10}}>
+                {'/' + total + ' KW'}
+              </Text>
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+                alignContent: 'center',
+              }}>
+              <View>
+                <View style={styles.graphWrapper}>
+                  <Svg height="100" width="100" viewBox="0 0 180 180">
+                    <G rotation={-90} originX="90" originY="90">
+                      {total === 0 ? (
+                        <Circle
+                          cx="50%"
+                          cy="50%"
+                          r={radius}
+                          stroke="#F1F6F9"
+                          fill="transparent"
+                          strokeWidth="40"
+                        />
+                      ) : (
+                        <>
+                          <Circle
+                            cx="50%"
+                            cy="50%"
+                            r={radius}
+                            stroke="#717572"
+                            fill="transparent"
+                            strokeWidth="40"
+                            strokeDasharray={circleCircumference}
+                            strokeDashoffset={totalStrokeDashoffset}
+                            rotation={360}
+                            originX="90"
+                            originY="90"
+                            strokeLinecap="round"
+                          />
+                          <Circle
+                            cx="50%"
+                            cy="50%"
+                            r={radius}
+                            stroke="#F05454"
+                            fill="transparent"
+                            strokeWidth="40"
+                            strokeDasharray={circleCircumference}
+                            strokeDashoffset={percentageStrokeDashoffset}
+                            rotation={0}
+                            originX="90"
+                            originY="90"
+                            strokeLinecap="round"
+                          />
+                        </>
+                      )}
+                    </G>
+                  </Svg>
+                  <Text style={styles.label}>{Percentage}%</Text>
+                </View>
+              </View>
+              <View
+                style={{
+                  justifyContent: 'flex-start',
+                  flexDirection: 'column',
+                  marginLeft: 20,
+                }}>
+                <Text
+                  style={{
+                    fontWeight: 'bold',
+                    color: '#000',
+                    fontSize: 15,
+                  }}>
+                  {Percentage + '%'}
+                </Text>
+                <Text style={{fontSize: 15, color: '#6b6c6e'}}>
+                  {'of Total Power Usage ' + selectedDate}
+                </Text>
+              </View>
             </View>
           </View>
           <View
-            style={{
-              justifyContent: 'flex-start',
-              flexDirection: 'column',
-              marginLeft: 20,
-            }}>
-            <Text
+            style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
+            <View
               style={{
-                fontWeight: 'bold',
-                color: '#000',
-                fontSize: 15,
-              }}>
-              {Percentage + '%'}
-            </Text>
-            <Text style={{fontSize: 15, color: '#6b6c6e'}}>
-              {'of Total Power Usage ' + selectedDate}
-            </Text>
+                flex: 1,
+                height: 2,
+                backgroundColor: '#6b6c6e',
+                marginLeft: 20,
+                marginRight: 10,
+              }}
+            />
+            <View>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  color: '#6b6c6e',
+                  fontWeight: 'bold',
+                }}>
+                {'Power Usage ' + selectedDate}
+              </Text>
+            </View>
+            <View
+              style={{
+                flex: 1,
+                height: 2,
+                backgroundColor: '#6b6c6e',
+                marginLeft: 10,
+                marginRight: 20,
+              }}
+            />
           </View>
-        </View>
-      </View>
-      <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
-        <View
-          style={{
-            flex: 1,
-            height: 2,
-            backgroundColor: '#6b6c6e',
-            marginLeft: 20,
-            marginRight: 10,
-          }}
-        />
-        <View>
-          <Text
-            style={{textAlign: 'center', color: '#6b6c6e', fontWeight: 'bold'}}>
-            {'Power Usage ' + selectedDate}
-          </Text>
-        </View>
-        <View
-          style={{
-            flex: 1,
-            height: 2,
-            backgroundColor: '#6b6c6e',
-            marginLeft: 10,
-            marginRight: 20,
-          }}
-        />
-      </View>
-      <View style={styles.graph}>
-        <View
-          style={{
-            justifyContent: 'center',
-            alignItems: 'center',
-            alignContent: 'center',
-            flexDirection: 'row',
-          }}>
-          <View style={[styles.dot, {backgroundColor: '#0ffc03'}]}></View>
-          <Text
-            style={{
-              textAlign: 'center',
-              color: '#000',
-              fontWeight: 'bold',
-              marginRight: 50,
-              marginLeft: 5,
-            }}>
-            {'Normal'}
-          </Text>
-          <View style={[styles.dot, {backgroundColor: '#fc0303'}]}></View>
-          <Text
-            style={{
-              textAlign: 'center',
-              color: '#000',
-              fontWeight: 'bold',
-              marginLeft: 5,
-            }}>
-            {'Anomaly'}
-          </Text>
-        </View>
-
-        <LineChart
-          data={{
-            labels: timeInfo,
-            datasets: [
-              {
-                data: pcInfo,
-                color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`, // optional
-                strokeWidth: 2, // optional
-              },
-            ],
-            //legend: ["Rainy Days"] // optional
-          }}
-          width={screenWidth}
-          height={220}
-          chartConfig={chartConfig}
-          getDotColor={(dataPoint, dataPointIndex) => {
-            //console.log(currentStatus);
-            if (currentStatus[dataPointIndex] == 'Anomaly') return '#ff0000';
-            // red
-            else return '#00ff00'; // green
-          }}
-        />
-      </View>
+          <View style={styles.graph}>
+            <View
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                alignContent: 'center',
+                flexDirection: 'row',
+              }}>
+              <View style={[styles.dot, {backgroundColor: '#0ffc03'}]}></View>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  color: '#000',
+                  fontWeight: 'bold',
+                  marginRight: 50,
+                  marginLeft: 5,
+                }}>
+                {'Normal'}
+              </Text>
+              <View style={[styles.dot, {backgroundColor: '#fc0303'}]}></View>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  color: '#000',
+                  fontWeight: 'bold',
+                  marginLeft: 5,
+                }}>
+                {'Anomaly'}
+              </Text>
+            </View>
+            <View>
+              <LineChart
+                data={{
+                  labels: timeUsage,
+                  datasets: [
+                    {
+                      data: infoUsage,
+                      color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`, // optional
+                      strokeWidth: 2, // optional
+                    },
+                  ],
+                  //legend: ["Rainy Days"] // optional
+                }}
+                width={screenWidth}
+                height={220}
+                chartConfig={chartConfig}
+                getDotColor={(dataPoint, dataPointIndex) => {
+                  //console.log(currentStatus);
+                  if (dotUsage[dataPointIndex] == 'Anomaly') return '#ff0000';
+                  // red
+                  else return '#00ff00'; // green
+                }}
+              />
+            </View>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
     </>
   );
 };
