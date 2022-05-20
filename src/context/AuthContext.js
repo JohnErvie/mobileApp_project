@@ -435,7 +435,7 @@ export const AuthProvider = ({children}) => {
 
           if (time == 'day') {
             dataInfoUsage.push(
-              parseFloat(dataUsage[x]['sum(power_consumption)']).toFixed(2),
+              parseFloat(dataUsage[x]['sum(power_consumption)']),
             );
 
             let converted = tConvert(timeOnly);
@@ -446,9 +446,7 @@ export const AuthProvider = ({children}) => {
             //console.log(modifiedTime);
           } else if (time == 'week') {
             dataInfoUsage.push(
-              (
-                parseFloat(dataUsage[x]['sum(power_consumption)']) / 1000
-              ).toFixed(2),
+              parseFloat(dataUsage[x]['sum(power_consumption)']) / 1000,
             );
 
             let converted = dayNameConvert(dateOnly); //ex. mon
@@ -456,9 +454,7 @@ export const AuthProvider = ({children}) => {
             //console.log(modifiedTime);
           } else if (time == 'month') {
             dataInfoUsage.push(
-              (
-                parseFloat(dataUsage[x]['sum(power_consumption)']) / 1000
-              ).toFixed(2),
+              parseFloat(dataUsage[x]['sum(power_consumption)']) / 1000,
             );
             dataTimeUsage.push(weekOfTheMonth(dateOnly));
             //console.log(weekOfTheMonth(dateOnly));
@@ -476,17 +472,17 @@ export const AuthProvider = ({children}) => {
         dotUsage = getDotUsage;
         setDotUsage(dotUsage);
 
-        getDotUsage = []; //to clear
-
         infoUsage = dataInfoUsage;
         setInfoUsage(infoUsage);
 
         timeUsage = dataTimeUsage;
         setTimeUsage(timeUsage);
 
-        //console.log(infoUsage);
-        //console.log(timeUsage);
+        console.log(infoUsage);
+        console.log(timeUsage);
         //console.log(dotUsage);
+
+        getDotUsage = []; //to clear
       })
       .catch(error => {
         console.log(`getting data error ${error}`);

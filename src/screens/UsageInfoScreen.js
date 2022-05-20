@@ -47,12 +47,6 @@ const UsageInfoScreen = ({navigation, route}) => {
   const {dotUsage, getDataInfoUsage, infoUsage, timeUsage} =
     useContext(AuthContext);
 
-  var DATA = [];
-
-  for (let x = 0; x < infoUsage.length; x++) {
-    DATA.push(parseFloat(infoUsage[x]));
-  }
-
   // for donut chart
   const radius = 70;
   const circleCircumference = 2 * Math.PI * radius;
@@ -251,7 +245,7 @@ const UsageInfoScreen = ({navigation, route}) => {
                   labels: timeUsage,
                   datasets: [
                     {
-                      data: DATA,
+                      data: infoUsage,
                       color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`, // optional
                       strokeWidth: 2, // optional
                     },
