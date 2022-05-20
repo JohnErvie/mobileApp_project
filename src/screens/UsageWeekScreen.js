@@ -101,11 +101,17 @@ const UsageWeekScreen = ({navigation}) => {
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }>
-          <View>
-            <ScrollView horizontal={true} style={{width: '100%'}}>
-              <FlatList data={weekUsage} renderItem={renderItem} />
-            </ScrollView>
-          </View>
+          {weekUsage ? (
+            <View>
+              <ScrollView horizontal={true} style={{width: '100%'}}>
+                <FlatList data={weekUsage} renderItem={renderItem} />
+              </ScrollView>
+            </View>
+          ) : (
+            <View>
+              <Text style={[styles.title, {color: 'black'}]}>{'Nodata'}</Text>
+            </View>
+          )}
         </ScrollView>
       </SafeAreaView>
     </View>

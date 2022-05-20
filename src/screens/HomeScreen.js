@@ -21,7 +21,12 @@ import {RadioButton} from 'react-native-paper';
 
 import {LineChart} from 'react-native-chart-kit';
 import {Dimensions} from 'react-native';
+
+import Svg, {G, Circle} from 'react-native-svg';
+
 const screenWidth = Dimensions.get('window').width;
+
+//Global Vars
 
 const HomeScreen = ({navigation}) => {
   const {
@@ -49,25 +54,8 @@ const HomeScreen = ({navigation}) => {
     infoUsage,
 
     sensorInfo,
+    todayUsage,
   } = useContext(AuthContext);
-
-  const [data, setData] = React.useState([
-    {
-      label: 'Summary',
-    },
-    {
-      label: sensorInfo.sensor1,
-    },
-    {
-      label: sensorInfo.sensor2,
-    },
-    {
-      label: sensorInfo.sensor3,
-    },
-    {
-      label: sensorInfo.sensor4,
-    },
-  ]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -91,7 +79,6 @@ const HomeScreen = ({navigation}) => {
         //you async action is here
         if (componentMountedDetection) {
           detectAnomaly();
-
           //getDataInfoUsage('day', 'Sensor 1');
           //console.log(timeUsage, infoUsage);
         }
@@ -137,7 +124,23 @@ const HomeScreen = ({navigation}) => {
           </View>
           <View>
             <RadioButtonRN
-              data={data}
+              data={[
+                {
+                  label: 'Summary',
+                },
+                {
+                  label: sensorInfo.sensor1,
+                },
+                {
+                  label: sensorInfo.sensor2,
+                },
+                {
+                  label: sensorInfo.sensor3,
+                },
+                {
+                  label: sensorInfo.sensor4,
+                },
+              ]}
               animationTypes={['shake']}
               initial={1}
               selectedBtn={e => {
@@ -216,6 +219,116 @@ const HomeScreen = ({navigation}) => {
               }}
             />
           </View>
+          <View
+            style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
+            <View
+              style={{
+                flex: 1,
+                height: 2,
+                backgroundColor: '#6b6c6e',
+                marginLeft: 20,
+                marginRight: 10,
+              }}
+            />
+            <View>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  color: '#6b6c6e',
+                  fontWeight: 'bold',
+                }}>
+                {'Power Usage Today'}
+              </Text>
+            </View>
+            <View
+              style={{
+                flex: 1,
+                height: 2,
+                backgroundColor: '#6b6c6e',
+                marginLeft: 10,
+                marginRight: 20,
+              }}
+            />
+          </View>
+          {/*
+          <View>
+            <View style={styles.graphWrapper}>
+              <Svg height="100" width="100" viewBox="0 0 180 180">
+                <G rotation={-90} originX="90" originY="90">
+                  {sensorsVarDay.total === 0 ? (
+                    <Circle
+                      cx="50%"
+                      cy="50%"
+                      r={sensorsVarDay.radius}
+                      stroke="#F1F6F9"
+                      fill="transparent"
+                      strokeWidth="40"
+                    />
+                  ) : (
+                    <>
+                      <Circle
+                        cx="50%"
+                        cy="50%"
+                        r={sensorsVarDay.radius}
+                        stroke="#6de38c"
+                        fill="transparent"
+                        strokeWidth="40"
+                        strokeDasharray={sensorsVarDay.circleCircumference}
+                        strokeDashoffset={sensorsVarDay.s1StrokeDashoffset}
+                        rotation={0}
+                        originX="90"
+                        originY="90"
+                        strokeLinecap="round"
+                      />
+                      <Circle
+                        cx="50%"
+                        cy="50%"
+                        r={sensorsVarDay.radius}
+                        stroke="#6daee3"
+                        fill="transparent"
+                        strokeWidth="40"
+                        strokeDasharray={sensorsVarDay.circleCircumference}
+                        strokeDashoffset={sensorsVarDay.s2StrokeDashoffset}
+                        rotation={sensorsVarDay.s1Angle}
+                        originX="90"
+                        originY="90"
+                        strokeLinecap="round"
+                      />
+                      <Circle
+                        cx="50%"
+                        cy="50%"
+                        r={sensorsVarDay.radius}
+                        stroke="#e3966d"
+                        fill="transparent"
+                        strokeWidth="40"
+                        strokeDasharray={sensorsVarDay.circleCircumference}
+                        strokeDashoffset={sensorsVarDay.s3StrokeDashoffset}
+                        rotation={sensorsVarDay.s2Angle}
+                        originX="90"
+                        originY="90"
+                        strokeLinecap="round"
+                      />
+                      <Circle
+                        cx="50%"
+                        cy="50%"
+                        r={sensorsVarDay.radius}
+                        stroke="#e36d6d"
+                        fill="transparent"
+                        strokeWidth="40"
+                        strokeDasharray={sensorsVarDay.circleCircumference}
+                        strokeDashoffset={sensorsVarDay.s4StrokeDashoffset}
+                        rotation={sensorsVarDay.s4Angle}
+                        originX="90"
+                        originY="90"
+                        strokeLinecap="round"
+                      />
+                    </>
+                  )}
+                </G>
+              </Svg>
+            </View>
+          </View>
+          */}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -324,37 +437,4 @@ const chartConfig2 = {
   },
 };
 
-/*
-const chartConfig = {
-  backgroundGradientFrom: '#1E2923',
-  backgroundGradientFromOpacity: 0,
-  backgroundGradientTo: '#08130D',
-  backgroundGradientToOpacity: 0.5,
-  color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
-  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-  strokeWidth: 2, // optional, default 3
-  barPercentage: 0.5,
-  useShadowColorFromDataset: false, // optional
-  propsForLabels: {
-    fontFamily: 'MontserratBold',
-    fontSize: 9,
-  },
-};
-
-const chartConfig2 = {
-  backgroundGradientFrom: '#1E2923',
-  backgroundGradientFromOpacity: 0,
-  backgroundGradientTo: '#08130D',
-  backgroundGradientToOpacity: 0.5,
-  color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
-  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-  strokeWidth: 2, // optional, default 3
-  barPercentage: 0.5,
-  useShadowColorFromDataset: false, // optional
-  propsForLabels: {
-    fontFamily: 'MontserratBold',
-    fontSize: 7,
-  },
-};
-*/
 export default HomeScreen;

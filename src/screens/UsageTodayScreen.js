@@ -51,21 +51,23 @@ const UsageTodayScreen = ({navigation}) => {
     textColor,
     name,
   }) => (
-    <TouchableOpacity
-      onPress={() =>
-        navigation.navigate('UsageInfo', {
-          item,
-          time,
-          name: 'Your Daily Power Usage',
-        })
-      }
-      style={[styles.item, backgroundColor]}>
-      <Text style={[styles.title, textColor]}>{name}</Text>
-      <Text style={[styles.title, textColor]}>
-        {(parseFloat(usage) / 1000).toFixed(2) + ' KW'}
-      </Text>
-      <Text style={[styles.title, textColor]}>{percentage + '%'}</Text>
-    </TouchableOpacity>
+    <>
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate('UsageInfo', {
+            item,
+            time,
+            name: 'Your Daily Power Usage',
+          })
+        }
+        style={[styles.item, backgroundColor]}>
+        <Text style={[styles.title, textColor]}>{name}</Text>
+        <Text style={[styles.title, textColor]}>
+          {(parseFloat(usage) / 1000).toFixed(2) + ' KW'}
+        </Text>
+        <Text style={[styles.title, textColor]}>{percentage + '%'}</Text>
+      </TouchableOpacity>
+    </>
   );
 
   const renderItem = ({item}) => {
@@ -89,6 +91,7 @@ const UsageTodayScreen = ({navigation}) => {
   return (
     <View style={styles.center}>
       <Spinner visible={setIsLoading} />
+
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <Text style={[styles.headerText]}>{'Location'}</Text>
@@ -102,11 +105,23 @@ const UsageTodayScreen = ({navigation}) => {
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }>
-          <View>
-            <ScrollView horizontal={true} style={{width: '100%'}}>
-              <FlatList data={todayUsage} renderItem={renderItem} />
-            </ScrollView>
-          </View>
+          {todayUsage ? (
+            <View>
+              <ScrollView horizontal={true} style={{width: '100%'}}>
+                <FlatList data={todayUsage} renderItem={renderItem} />
+              </ScrollView>
+            </View>
+          ) : (
+            <View>
+              <Text
+                style={[
+                  styles.title,
+                  {color: 'black', fontSize: 15, fontWeight: '500'},
+                ]}>
+                {'No Data'}
+              </Text>
+            </View>
+          )}
         </ScrollView>
       </SafeAreaView>
     </View>

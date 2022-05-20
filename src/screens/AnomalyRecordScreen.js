@@ -40,14 +40,14 @@ const AnomalyRecordScreen = () => {
     power,
     sensor,
     datetime,
-    onPress,
     backgroundColor,
     textColor,
+    name,
   }) => (
-    <TouchableOpacity onPress={onPress} style={[styles.item, backgroundColor]}>
-      <Text style={[styles.title, textColor]}>
-        {sensor + '    '} {datetime.slice(0, 22) + '   '} {power}
-      </Text>
+    <TouchableOpacity style={[styles.item, backgroundColor]}>
+      <Text style={[styles.title, textColor]}>{name}</Text>
+      <Text style={[styles.title, textColor]}>{datetime.slice(0, 22)}</Text>
+      <Text style={[styles.title, textColor]}>{power}</Text>
     </TouchableOpacity>
   );
 
@@ -57,6 +57,7 @@ const AnomalyRecordScreen = () => {
 
     return (
       <Item
+        name={item.sname}
         sensor={item.sensor}
         datetime={item.datetime}
         power={item.power_consumption}
@@ -82,11 +83,23 @@ const AnomalyRecordScreen = () => {
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }>
-            <View>
-              <ScrollView horizontal={true} style={{width: '100%'}}>
-                <FlatList data={anomalyData} renderItem={renderItem} />
-              </ScrollView>
-            </View>
+            {anomalyData ? (
+              <View>
+                <ScrollView horizontal={true} style={{width: '100%'}}>
+                  <FlatList data={anomalyData} renderItem={renderItem} />
+                </ScrollView>
+              </View>
+            ) : (
+              <View>
+                <Text
+                  style={[
+                    styles.title,
+                    {color: 'black', fontSize: 15, fontWeight: '500'},
+                  ]}>
+                  {'No Data'}
+                </Text>
+              </View>
+            )}
           </ScrollView>
         </SafeAreaView>
       </View>
@@ -100,6 +113,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     textAlign: 'center',
+    flexDirection: 'row',
   },
   container: {
     flex: 1,
@@ -107,8 +121,10 @@ const styles = StyleSheet.create({
   },
   item: {
     padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16,
+    marginVertical: 2,
+    alignContent: 'space-between',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
   },
   title: {
     fontSize: 15,
@@ -120,12 +136,11 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   header: {
-    justifyContent: 'space-between',
     alignContent: 'space-between',
     justifyContent: 'space-between',
     flexDirection: 'row',
-    marginLeft: 20,
-    marginRight: 20,
+    marginLeft: 25,
+    marginRight: 10,
   },
 });
 

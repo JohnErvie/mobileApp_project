@@ -101,11 +101,17 @@ const UsageMonthScreen = ({navigation}) => {
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }>
-          <View>
-            <ScrollView horizontal={true} style={{width: '100%'}}>
-              <FlatList data={monthUsage} renderItem={renderItem} />
-            </ScrollView>
-          </View>
+          {monthUsage ? (
+            <View>
+              <ScrollView horizontal={true} style={{width: '100%'}}>
+                <FlatList data={monthUsage} renderItem={renderItem} />
+              </ScrollView>
+            </View>
+          ) : (
+            <View>
+              <Text style={[styles.title, {color: 'black'}]}>{'Nodata'}</Text>
+            </View>
+          )}
         </ScrollView>
         <View>{}</View>
       </SafeAreaView>

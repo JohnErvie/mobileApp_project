@@ -366,36 +366,63 @@ export const AuthProvider = ({children}) => {
       .then(response => {
         //alert(response[0].power_consumption);
         //console.log(response[0].Summary);
+        console.log(response[0].Summary.length);
         //console.log(response[0].Usage[0]);
+        if (response[0].Summary.length <= 0) {
+          var dataUsage = null;
 
-        var Summary = parseFloat(
-          response[0].Summary[0]['sum(power_consumption)'],
-        );
-        var dataUsage = response[0].Usage;
+          //console.log(dataUsage);
+          if (time == 'day') {
+            todayUsage = dataUsage;
+            setTodayUsage(todayUsage);
+            //return todayUsage;
+          } else if (time == 'week') {
+            weekUsage = dataUsage;
+            setWeekUsage(weekUsage);
 
-        var usagelength = dataUsage.length;
+            //return weekUsage;
+          } else if (time == 'month') {
+            monthUsage = dataUsage;
+            setMonthUsage(monthUsage);
 
-        for (let x = 0; x < usagelength; x++) {
-          dataUsage[x]['Percentage'] = String(
-            (
-              (parseFloat(dataUsage[x]['sum(power_consumption)']) / Summary) *
-              100
-            ).toFixed(2),
-          ); //adding the usage percentage
-          dataUsage[x]['Total'] = String(Summary);
-          dataUsage[x]['id'] = String(x);
-        }
+            //return monthUsage;
+          }
+        } else {
+          var Summary = parseFloat(
+            response[0].Summary[0]['sum(power_consumption)'],
+          );
+          var dataUsage = response[0].Usage;
 
-        //console.log(dataUsage);
-        if (time == 'day') {
-          todayUsage = dataUsage;
-          setTodayUsage(todayUsage);
-        } else if (time == 'week') {
-          weekUsage = dataUsage;
-          setWeekUsage(weekUsage);
-        } else if (time == 'month') {
-          monthUsage = dataUsage;
-          setMonthUsage(monthUsage);
+          var usagelength = dataUsage.length;
+
+          for (let x = 0; x < usagelength; x++) {
+            dataUsage[x]['Percentage'] = String(
+              (
+                (parseFloat(dataUsage[x]['sum(power_consumption)']) / Summary) *
+                100
+              ).toFixed(2),
+            ); //adding the usage percentage
+            dataUsage[x]['Total'] = String(Summary);
+            dataUsage[x]['id'] = String(x);
+          }
+
+          //console.log(dataUsage);
+          if (time == 'day') {
+            todayUsage = dataUsage;
+            setTodayUsage(todayUsage);
+            //return todayUsage;
+          } else if (time == 'week') {
+            weekUsage = dataUsage;
+            setWeekUsage(weekUsage);
+
+            //return weekUsage;
+          } else if (time == 'month') {
+            monthUsage = dataUsage;
+            setMonthUsage(monthUsage);
+
+            //return monthUsage;
+          }
+          //console.log(todayUsage);
         }
       })
       .catch(error => {
@@ -489,8 +516,8 @@ export const AuthProvider = ({children}) => {
         timeUsage = dataTimeUsage;
         setTimeUsage(timeUsage);
 
-        console.log(infoUsage);
-        console.log(timeUsage);
+        //console.log(infoUsage);
+        //console.log(timeUsage);
         //console.log(dotUsage);
 
         getDotUsage = []; //to clear
@@ -523,8 +550,14 @@ export const AuthProvider = ({children}) => {
       .then(response => {
         //alert(response[0].power_consumption);
         //console.log(response[0].Anomaly[0]);
-        anomalyData = response[0].Anomaly;
-        setAnomalyData(anomalyData);
+        if (response[0].Anomaly.length <= 0) {
+          anomalyData = null;
+          setAnomalyData(anomalyData);
+        } else {
+          anomalyData = response[0].Anomaly;
+          setAnomalyData(anomalyData);
+        }
+
         //console.log('running?');
         //return anomalyData;
       })
