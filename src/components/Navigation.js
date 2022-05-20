@@ -5,7 +5,7 @@ import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/HomeScreen';
-import ProfileScreen from '../screens/ProfileScreen';
+import MoreScreen from '../screens/MoreScreen';
 import AnomalyRecordScreen from '../screens/AnomalyRecordScreen';
 import UsageTodayScreen from '../screens/UsageTodayScreen';
 import UsageWeekScreen from '../screens/UsageWeekScreen';
@@ -14,11 +14,12 @@ import UsageInfoScreen from '../screens/UsageInfoScreen';
 import ConnectScreen from '../screens/ConnectScreen';
 import ScanScreen from '../screens/ScanScreen';
 import AddSensorScreen from '../screens/AddSensorScreen';
+import ChangeSensorScreen from '../screens/ChangeSensorScreen';
 import {AuthContext} from '../context/AuthContext';
 import SplashScreen from '../screens/SplashScreen';
 
 //icons
-import {Entypo, AntDesign, MaterialIcons} from '@expo/vector-icons';
+import {Entypo, AntDesign, MaterialIcons, Feather} from '@expo/vector-icons';
 
 import {
   createDrawerNavigator,
@@ -59,7 +60,7 @@ const DrawerNavigator = () => {
         );
       }}>
       <Drawer.Screen name="Home" component={HomeScreen} />
-      <Drawer.Screen name="Profile" component={ProfileScreen} />
+      <Drawer.Screen name="More" component={MoreScreen} />
     </Drawer.Navigator>
   );
 };
@@ -176,15 +177,15 @@ const TabNavigator = () => {
       />
 
       <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
+        name="More"
+        component={MoreScreen}
         options={{
-          tabBarLabel: 'PROFILE',
+          tabBarLabel: 'MORE',
           tabBarOptions: {
             showIcon: true,
           },
           tabBarIcon: ({color, size}) => (
-            <AntDesign name="profile" size={size} color={color} />
+            <Feather name="more-horizontal" size={size} color={color} />
           ),
         }}
       />
@@ -251,12 +252,17 @@ const Navigation = () => {
               //options={{headerShown: true}}
               options={({route}) => ({title: route.params.name})}
             />
+            <Stack.Screen
+              name="Edit Sensor Names"
+              component={ChangeSensorScreen}
+              options={{headerShown: true}}
+            />
           </>
         ) : (
           <Stack.Screen
             name="AddSensorName"
             component={AddSensorScreen}
-            options={{headerShown: false}}
+            options={{headerShown: true}}
           />
         )
       ) : (

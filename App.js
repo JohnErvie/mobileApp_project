@@ -9,7 +9,7 @@ import {ToastProvider} from 'react-native-toast-notifications';
 
 import {LogBox} from 'react-native';
 
-import {Feather, Entypo} from '@expo/vector-icons';
+import {Feather, Entypo, AntDesign} from '@expo/vector-icons';
 
 const App = () => {
   return (
@@ -18,12 +18,13 @@ const App = () => {
       duration={5000}
       animationType="slide-in | zoom-in"
       animationDuration={250}
-      successColor="green"
-      dangerColor="red"
-      warningColor="orange"
+      successColor="gray"
+      dangerColor="gray"
+      warningColor="gray"
       normalColor="gray"
-      icon={<Feather name="wifi-off" size={24} color="black" />}
-      warningIcon={<Entypo name="warning" size={24} color="black" />}
+      //icon={<Feather name="wifi-off" size={24} color="black" />}
+      //successIcon={<AntDesign name="checkcircle" size={24} color="black" />}
+      //warningIcon={<Entypo name="warning" size={24} color="black" />}
       textStyle={{fontSize: 16}}
       offset={50} // offset for both top and bottom toasts
       offsetTop={30}
