@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState, useRef} from 'react';
 import {
   Button,
   StyleSheet,
@@ -15,7 +15,7 @@ import {Picker} from '@react-native-picker/picker';
 
 import PushNotification from 'react-native-push-notification';
 //import Icon from 'react-native-vector-icons/FontAwesome';
-import {AntDesign} from '@expo/vector-icons';
+import {AntDesign, Feather, Entypo} from '@expo/vector-icons';
 import RadioButtonRN from 'radio-buttons-react-native';
 import {RadioButton} from 'react-native-paper';
 

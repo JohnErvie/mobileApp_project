@@ -3,6 +3,7 @@ import React, {createContext, useEffect, useState} from 'react';
 import {BASE_URL} from '../config';
 import {Alert} from 'react-native';
 import PushNotification from 'react-native-push-notification';
+import {useToast} from 'react-native-toast-notifications';
 
 //import getWeekOfMonth from 'date-fns/getWeekOfMonth';
 
@@ -37,6 +38,9 @@ export const AuthProvider = ({children}) => {
   var [infoUsage, setInfoUsage] = useState([0]);
   var [timeUsage, setTimeUsage] = useState(['']);
   var [dotUsage, setDotUsage] = useState(['']);
+
+  // for toast notification
+  const toast = useToast();
 
   //for sensors
   const [sensorInfo, setSensorInfo] = useState({});
@@ -327,6 +331,13 @@ export const AuthProvider = ({children}) => {
         setGetCurrentStatus(getCurrentStatus);
       })
       .catch(error => {
+        toast.show('Network Connection Error.', {
+          type: 'normal',
+          placement: 'bottom',
+          duration: 4000,
+          offset: 30,
+          animationType: 'slide-in | zoom-in',
+        });
         console.log(`getting data error ${error}`);
       });
   };
