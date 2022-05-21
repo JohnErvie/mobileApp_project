@@ -334,7 +334,7 @@ export const AuthProvider = ({children}) => {
         toast.show('Network Connection Error.', {
           type: 'normal',
           placement: 'bottom',
-          duration: 4000,
+          duration: 2000,
           offset: 30,
           animationType: 'slide-in | zoom-in',
         });

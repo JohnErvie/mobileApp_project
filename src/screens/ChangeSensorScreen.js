@@ -253,14 +253,39 @@ const ChangeSensorScreen = ({navigation}) => {
             <Button
               title="Proceed"
               onPress={() => {
-                sensor1 = 'Sensor 1';
-                setSensor1(sensor1);
-                sensor2 = 'Sensor 2';
-                setSensor2(sensor2);
-                sensor3 = 'Sensor 3';
-                setSensor3(sensor3);
-                sensor4 = 'Sensor 4';
-                setSensor3(sensor4);
+                setVisibleMissingField(false);
+
+                if (sensor1 === '' || sensor1 === null) {
+                  sensor1 = 'Sensor 1';
+                  setSensor1(sensor1);
+                } else {
+                  sensor1 = sensor1;
+                  setSensor1(sensor1);
+                }
+
+                if (sensor2 === '' || sensor2 === null) {
+                  sensor2 = 'Sensor 2';
+                  setSensor1(sensor2);
+                } else {
+                  sensor2 = sensor2;
+                  setSensor2(sensor2);
+                }
+
+                if (sensor3 === '' || sensor3 === null) {
+                  sensor3 = 'Sensor 3';
+                  setSensor3(sensor3);
+                } else {
+                  sensor3 = sensor3;
+                  setSensor3(sensor3);
+                }
+
+                if (sensor4 === '' || sensor4 === null) {
+                  sensor4 = 'Sensor 4';
+                  setSensor4(sensor4);
+                } else {
+                  sensor4 = sensor4;
+                  setSensor4(sensor4);
+                }
                 sensorName(rpiInfo.rpi_id, sensor1, sensor2, sensor3, sensor4);
                 toast.show('Successfully Changed', {
                   type: 'warning',
