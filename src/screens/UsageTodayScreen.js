@@ -52,21 +52,25 @@ const UsageTodayScreen = ({navigation}) => {
     name,
   }) => (
     <>
-      <TouchableOpacity
-        onPress={() =>
-          navigation.navigate('UsageInfo', {
-            item,
-            time,
-            name: 'Your Daily Power Usage',
-          })
-        }
-        style={[styles.item, backgroundColor]}>
-        <Text style={[styles.title, textColor]}>{name}</Text>
-        <Text style={[styles.title, textColor]}>
-          {(parseFloat(usage) / 1000).toFixed(2) + ' KW'}
-        </Text>
-        <Text style={[styles.title, textColor]}>{percentage + '%'}</Text>
-      </TouchableOpacity>
+      <View>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('UsageInfo', {
+              item,
+              time,
+              name: 'Your Daily Power Usage',
+            })
+          }
+          style={[styles.item, backgroundColor]}>
+          <Text style={[styles.title, textColor, {marginRight: 50}]}>
+            {name}
+          </Text>
+          <Text style={[styles.title, textColor, {marginRight: 50}]}>
+            {(parseFloat(usage) / 1000).toFixed(2) + ' KW'}
+          </Text>
+          <Text style={[styles.title, textColor]}>{percentage + '%'}</Text>
+        </TouchableOpacity>
+      </View>
     </>
   );
 
@@ -150,8 +154,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 15,
     color: '#f5f5fa',
-    marginLeft: 35,
-    marginRight: 35,
   },
   headerText: {
     fontSize: 15,

@@ -56,7 +56,7 @@ const ChangeSensorScreen = ({navigation}) => {
 
   var [sensor1, setSensor1] = useState(sensorInfo.sensor1);
   var [sensor2, setSensor2] = useState(sensorInfo.sensor2);
-  var [sensor3, setSensor3] = useState(sensorInfo.sensor3);
+  //var [sensor3, setSensor3] = useState(sensorInfo.sensor3);
   var [sensor4, setSensor4] = useState(sensorInfo.sensor4);
 
   const [visibleMissingField, setVisibleMissingField] = React.useState(false);
@@ -104,6 +104,7 @@ const ChangeSensorScreen = ({navigation}) => {
               placeholderTextColor="#808080"
             />
           </View>
+          {/*
           <View style={{marginBottom: 10}}>
             <Text style={styles.inputLabel}>{'Sensor 3'}</Text>
             <TextInput
@@ -114,12 +115,13 @@ const ChangeSensorScreen = ({navigation}) => {
               placeholderTextColor="#808080"
             />
           </View>
+          */}
           <View style={{marginBottom: 10}}>
-            <Text style={styles.inputLabel}>{'Sensor 4'}</Text>
+            <Text style={styles.inputLabel}>{'Sensor 3'}</Text>
             <TextInput
               style={styles.TxtInput}
               value={sensor4}
-              placeholder="Default: Sensor 4"
+              placeholder="Default: Sensor 3"
               onChangeText={text => setSensor4(text)}
               placeholderTextColor="#808080"
             />
@@ -129,6 +131,7 @@ const ChangeSensorScreen = ({navigation}) => {
         <Button
           title="Proceed"
           onPress={() => {
+            /*
             if (
               sensor1 === '' ||
               sensor1 === null ||
@@ -138,18 +141,27 @@ const ChangeSensorScreen = ({navigation}) => {
               sensor3 === null ||
               sensor4 === '' ||
               sensor4 === null
+            )
+            */
+            if (
+              sensor1 === '' ||
+              sensor1 === null ||
+              sensor2 === '' ||
+              sensor2 === null ||
+              sensor4 === '' ||
+              sensor4 === null
             ) {
               setVisibleMissingField(true);
             } else if (
               sensor1 == sensorInfo.sensor1 &&
               sensor2 == sensorInfo.sensor2 &&
-              sensor3 == sensorInfo.sensor3 &&
+              //sensor3 == sensorInfo.sensor3 &&
               sensor4 == sensorInfo.sensor4
             ) {
               // if no changes
               setVisibleSameField(true);
             } else {
-              sensorName(rpiInfo.rpi_id, sensor1, sensor2, sensor3, sensor4);
+              sensorName(rpiInfo.rpi_id, sensor1, sensor2, sensor4);
               toast.show('Successfully Changed', {
                 type: 'success',
                 placement: 'bottom',
@@ -270,7 +282,7 @@ const ChangeSensorScreen = ({navigation}) => {
                   sensor2 = sensor2;
                   setSensor2(sensor2);
                 }
-
+                /*
                 if (sensor3 === '' || sensor3 === null) {
                   sensor3 = 'Sensor 3';
                   setSensor3(sensor3);
@@ -278,7 +290,7 @@ const ChangeSensorScreen = ({navigation}) => {
                   sensor3 = sensor3;
                   setSensor3(sensor3);
                 }
-
+                */
                 if (sensor4 === '' || sensor4 === null) {
                   sensor4 = 'Sensor 4';
                   setSensor4(sensor4);
@@ -286,7 +298,7 @@ const ChangeSensorScreen = ({navigation}) => {
                   sensor4 = sensor4;
                   setSensor4(sensor4);
                 }
-                sensorName(rpiInfo.rpi_id, sensor1, sensor2, sensor3, sensor4);
+                sensorName(rpiInfo.rpi_id, sensor1, sensor2, sensor4);
                 toast.show('Successfully Changed', {
                   type: 'warning',
                   placement: 'bottom',

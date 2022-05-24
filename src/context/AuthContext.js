@@ -39,6 +39,13 @@ export const AuthProvider = ({children}) => {
   var [timeUsage, setTimeUsage] = useState(['']);
   var [dotUsage, setDotUsage] = useState(['']);
 
+  // For checking the number of data
+  var [s1Status, setS1Status] = useState(null);
+  var [s2Status, setS2Status] = useState(null);
+  //var [s3Status, setS3Status] = useState(null);
+  var [s4Status, setS4Status] = useState(null);
+  var [dataProgressStatus, setDataProgressStatus] = useState(null);
+
   // for toast notification
   const toast = useToast();
 
@@ -473,7 +480,7 @@ export const AuthProvider = ({children}) => {
 
           if (time == 'day') {
             dataInfoUsage.push(
-              parseFloat(dataUsage[x]['sum(power_consumption)']),
+              parseFloat(dataUsage[x]['sum(power_consumption)']) / 1000,
             );
 
             let converted = tConvert(timeOnly);
@@ -527,7 +534,7 @@ export const AuthProvider = ({children}) => {
       });
   };
 
-  const getAnomalyData = () => {
+  const getAnomalyData = (sort, date, rows, sensor) => {
     //console.log(rpiInfo.rpi_id);
 
     var InsertAPIURL = `${BASE_URL}/anomaly_list.php`;
@@ -539,6 +546,10 @@ export const AuthProvider = ({children}) => {
 
     var Data = {
       rpi_id: rpiInfo.rpi_id, //rpiInfo.rpi_id
+      sort: sort,
+      date: date,
+      rows: rows,
+      sensor: sensor,
     };
 
     fetch(InsertAPIURL, {
@@ -549,8 +560,9 @@ export const AuthProvider = ({children}) => {
       .then(response => response.json())
       .then(response => {
         //alert(response[0].power_consumption);
-        //console.log(response[0].Anomaly[0]);
+        //console.log(response[0]);
         if (response[0].Anomaly.length <= 0) {
+          //change this to <=
           anomalyData = null;
           setAnomalyData(anomalyData);
         } else {
@@ -591,10 +603,10 @@ export const AuthProvider = ({children}) => {
       .then(response => response.json())
       .then(response => {
         //alert(response[0].Message);
-        console.log(response[0].Message);
+        //console.log(response[0].Message);
         if (response[0].Data != null) {
           let rpiInfo = response[0].Data;
-          console.log(rpiInfo);
+          //console.log(rpiInfo);
           setRpiInfo(rpiInfo);
           AsyncStorage.setItem('rpiInfo', JSON.stringify(rpiInfo));
           setIsLoading(false);
@@ -607,7 +619,8 @@ export const AuthProvider = ({children}) => {
       });
   };
 
-  const sensorName = (rpi_id, s1, s2, s3, s4) => {
+  //const sensorName = (rpi_id, s1, s2, s3, s4) => {
+  const sensorName = (rpi_id, s1, s2, s4) => {
     setIsLoading(true);
 
     //console.log(password);
@@ -623,7 +636,7 @@ export const AuthProvider = ({children}) => {
       rpi_id: rpi_id,
       sensor1: s1,
       sensor2: s2,
-      sensor3: s3,
+      //sensor3: s3,
       sensor4: s4,
     };
 
@@ -651,6 +664,75 @@ export const AuthProvider = ({children}) => {
       });
   };
 
+  const checkingData = rpi_id => {
+    setIsLoading(true);
+
+    //console.log(password);
+
+    var InsertAPIURL = `${BASE_URL}/check_data.php`;
+
+    var headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    };
+
+    var Data = {
+      rpi_id: rpi_id,
+    };
+
+    fetch(InsertAPIURL, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(Data),
+    })
+      .then(response => response.json())
+      .then(response => {
+        //alert(response[0].Message);
+        //console.log(response[0].Message);
+        //console.log(response[0].Sensor4);
+        /*
+        if(response[0].Message.Sensor1 == "Active"){
+
+        }
+        */
+        var dataNeeded = 18000;
+        if (
+          parseInt(response[0].Sensor1) >= dataNeeded &&
+          parseInt(response[0].Sensor2) >= dataNeeded &&
+          //parseInt(response[0].Sensor3) >= dataNeeded &&
+          parseInt(response[0].Sensor4) >= dataNeeded
+        ) {
+          let dataProgressStatus = true;
+          //console.log(dataProgressStatus);
+          setDataProgressStatus(dataProgressStatus);
+          AsyncStorage.setItem(
+            'dataProgressStatus',
+            JSON.stringify(dataProgressStatus),
+          );
+          setIsLoading(false);
+
+          //dataProgressStatus = true;
+          //setDataProgressStatus(dataProgressStatus);
+        } else {
+          s1Status = (parseFloat(response[0].Sensor1) / dataNeeded).toFixed(2);
+          setS1Status(s1Status);
+          s2Status = (parseFloat(response[0].Sensor2) / dataNeeded).toFixed(2);
+          setS2Status(s2Status);
+          //s3Status = (parseFloat(response[0].Sensor3)/ dataNeeded).toFixed(2);
+          s4Status = (parseFloat(response[0].Sensor4) / dataNeeded).toFixed(2);
+          setS4Status(s4Status);
+        }
+        //console.log(s1Status);
+        //console.log(s2Status);
+        //console.log(s3Status);
+        //console.log(s4Status);
+      })
+      .catch(error => {
+        console.log(`connection error ${error}`);
+        setIsLoading(false);
+      });
+  };
+
   const isConnectedIn = async () => {
     try {
       setSplashLoading(true);
@@ -667,6 +749,13 @@ export const AuthProvider = ({children}) => {
 
       if (sensorInfo) {
         setSensorInfo(sensorInfo);
+      }
+
+      let dataProgressStatus = await AsyncStorage.getItem('dataProgressStatus');
+      dataProgressStatus = JSON.parse(dataProgressStatus);
+
+      if (dataProgressStatus) {
+        setDataProgressStatus(dataProgressStatus);
       }
 
       setSplashLoading(false);
@@ -713,7 +802,7 @@ export const AuthProvider = ({children}) => {
         }
       })
       .catch(error => {
-        console.log(`2hellogetting data error ${error}`);
+        console.log(`getting data error ${error}`);
       });
   };
 
@@ -767,6 +856,12 @@ export const AuthProvider = ({children}) => {
 
         sensorInfo,
 
+        dataProgressStatus,
+        s1Status,
+        s2Status,
+        //s3Status,
+        s4Status,
+
         storeIp_address,
         logout,
         getData,
@@ -785,6 +880,8 @@ export const AuthProvider = ({children}) => {
         detectAnomaly,
 
         sensorName,
+
+        checkingData,
       }}>
       {children}
     </AuthContext.Provider>

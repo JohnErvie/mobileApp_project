@@ -55,6 +55,7 @@ const HomeScreen = ({navigation}) => {
 
     sensorInfo,
     todayUsage,
+    checkingData,
   } = useContext(AuthContext);
 
   useEffect(() => {
@@ -71,14 +72,14 @@ const HomeScreen = ({navigation}) => {
       return () => {
         componentMounted = false;
       };
-    }, 10000); //refresh in 10 second
+    }, 15000); //refresh in 15 second
 
     const intervalIdDetection = setInterval(() => {
       let componentMountedDetection = true;
       const fetchDataDetection = async () => {
         //you async action is here
         if (componentMountedDetection) {
-          detectAnomaly();
+          //detectAnomaly(); // notification when anomaly detected
           //getDataInfoUsage('day', 'Sensor 1');
           //console.log(timeUsage, infoUsage);
         }
@@ -87,7 +88,7 @@ const HomeScreen = ({navigation}) => {
       return () => {
         componentMountedDetection = false;
       };
-    }, 1000); //refresh in 10 second
+    }, 1000); //refresh in 1 second
 
     return () => {
       clearInterval(intervalId);
@@ -134,9 +135,9 @@ const HomeScreen = ({navigation}) => {
                 {
                   label: sensorInfo.sensor2,
                 },
-                {
+                /*{
                   label: sensorInfo.sensor3,
-                },
+                },*/
                 {
                   label: sensorInfo.sensor4,
                 },
@@ -219,6 +220,7 @@ const HomeScreen = ({navigation}) => {
               }}
             />
           </View>
+          {/*
           <View
             style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
             <View
@@ -250,7 +252,7 @@ const HomeScreen = ({navigation}) => {
               }}
             />
           </View>
-          {/*
+          
           <View>
             <View style={styles.graphWrapper}>
               <Svg height="100" width="100" viewBox="0 0 180 180">

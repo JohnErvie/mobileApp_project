@@ -59,8 +59,8 @@ const UsageWeekScreen = ({navigation}) => {
         })
       }
       style={[styles.item, backgroundColor]}>
-      <Text style={[styles.title, textColor]}>{name}</Text>
-      <Text style={[styles.title, textColor]}>
+      <Text style={[styles.title, textColor, {marginRight: 50}]}>{name}</Text>
+      <Text style={[styles.title, textColor, {marginRight: 50}]}>
         {(parseFloat(usage) / 1000).toFixed(2) + ' KW'}
       </Text>
       <Text style={[styles.title, textColor]}>{percentage + '%'}</Text>
@@ -140,8 +140,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 15,
     color: '#f5f5fa',
-    marginLeft: 35,
-    marginRight: 35,
   },
   headerText: {
     fontSize: 15,

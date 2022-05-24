@@ -252,7 +252,7 @@ const UsageInfoScreen = ({navigation, route}) => {
                   ],
                   //legend: ["Rainy Days"] // optional
                 }}
-                yAxisSuffix={time === 'day' ? 'W' : 'KW'}
+                yAxisSuffix={'KW'}
                 verticalLabelRotation={360 - 30}
                 width={screenWidth}
                 height={280}

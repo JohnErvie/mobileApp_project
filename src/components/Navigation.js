@@ -15,6 +15,7 @@ import ConnectScreen from '../screens/ConnectScreen';
 import ScanScreen from '../screens/ScanScreen';
 import AddSensorScreen from '../screens/AddSensorScreen';
 import ChangeSensorScreen from '../screens/ChangeSensorScreen';
+import CollectDataScreen from '../screens/CollectDataScreen';
 import {AuthContext} from '../context/AuthContext';
 import SplashScreen from '../screens/SplashScreen';
 
@@ -221,7 +222,8 @@ const styles = StyleSheet.create({
 });
 
 const Navigation = () => {
-  const {rpiInfo, splashLoading, sensorInfo} = useContext(AuthContext);
+  const {rpiInfo, splashLoading, sensorInfo, dataProgressStatus} =
+    useContext(AuthContext);
 
   return (
     <Stack.Navigator>
@@ -240,29 +242,37 @@ const Navigation = () => {
         />
         */
         sensorInfo.sensor1 ? (
-          <>
+          dataProgressStatus ? (
+            <>
+              <Stack.Screen
+                name="HomeStack"
+                component={TabNavigator}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="UsageInfo"
+                component={UsageInfoScreen}
+                //options={{headerShown: true}}
+                options={({route}) => ({title: route.params.name})}
+              />
+              <Stack.Screen
+                name="Edit Sensor Names"
+                component={ChangeSensorScreen}
+                options={{headerShown: true}}
+              />
+            </>
+          ) : (
             <Stack.Screen
-              name="HomeStack"
-              component={TabNavigator}
+              name="CollectDataScreen"
+              component={CollectDataScreen}
               options={{headerShown: false}}
             />
-            <Stack.Screen
-              name="UsageInfo"
-              component={UsageInfoScreen}
-              //options={{headerShown: true}}
-              options={({route}) => ({title: route.params.name})}
-            />
-            <Stack.Screen
-              name="Edit Sensor Names"
-              component={ChangeSensorScreen}
-              options={{headerShown: true}}
-            />
-          </>
+          )
         ) : (
           <Stack.Screen
             name="AddSensorName"
             component={AddSensorScreen}
-            options={{headerShown: true}}
+            options={{headerShown: false}}
           />
         )
       ) : (

@@ -52,7 +52,7 @@ const ModalPoup = ({visible, children}) => {
 const AddSensorScreen = ({navigation}) => {
   var [sensor1, setSensor1] = useState(null);
   var [sensor2, setSensor2] = useState(null);
-  var [sensor3, setSensor3] = useState(null);
+  //var [sensor3, setSensor3] = useState(null);
   var [sensor4, setSensor4] = useState(null);
 
   const [visibleMissingField, setVisibleMissingField] = React.useState(false);
@@ -97,6 +97,7 @@ const AddSensorScreen = ({navigation}) => {
               placeholderTextColor="#808080"
             />
           </View>
+          {/*
           <View style={{marginBottom: 10}}>
             <Text style={styles.inputLabel}>{'Sensor 3'}</Text>
             <TextInput
@@ -107,12 +108,13 @@ const AddSensorScreen = ({navigation}) => {
               placeholderTextColor="#808080"
             />
           </View>
+          */}
           <View style={{marginBottom: 10}}>
-            <Text style={styles.inputLabel}>{'Sensor 4'}</Text>
+            <Text style={styles.inputLabel}>{'Sensor 3'}</Text>
             <TextInput
               style={styles.TxtInput}
               value={sensor4}
-              placeholder="Default: Sensor 4"
+              placeholder="Default: Sensor 3"
               onChangeText={text => setSensor4(text)}
               placeholderTextColor="#808080"
             />
@@ -122,6 +124,7 @@ const AddSensorScreen = ({navigation}) => {
         <Button
           title="Proceed"
           onPress={() => {
+            /*
             if (
               sensor1 === '' ||
               sensor1 === null ||
@@ -129,6 +132,15 @@ const AddSensorScreen = ({navigation}) => {
               sensor2 === null ||
               sensor3 === '' ||
               sensor3 === null ||
+              sensor4 === '' ||
+              sensor4 === null
+            )
+            */
+            if (
+              sensor1 === '' ||
+              sensor1 === null ||
+              sensor2 === '' ||
+              sensor2 === null ||
               sensor4 === '' ||
               sensor4 === null
             ) {
@@ -144,7 +156,7 @@ const AddSensorScreen = ({navigation}) => {
               setSensor3(sensor4);*/
               setVisibleMissingField(true);
             } else {
-              sensorName(rpiInfo.rpi_id, sensor1, sensor2, sensor3, sensor4);
+              sensorName(rpiInfo.rpi_id, sensor1, sensor2, sensor4);
             }
           }}
         />
@@ -214,7 +226,7 @@ const AddSensorScreen = ({navigation}) => {
                   sensor2 = sensor2;
                   setSensor2(sensor2);
                 }
-
+                /*
                 if (sensor3 === '' || sensor3 === null) {
                   sensor3 = 'Sensor 3';
                   setSensor3(sensor3);
@@ -222,7 +234,7 @@ const AddSensorScreen = ({navigation}) => {
                   sensor3 = sensor3;
                   setSensor3(sensor3);
                 }
-
+                */
                 if (sensor4 === '' || sensor4 === null) {
                   sensor4 = 'Sensor 4';
                   setSensor4(sensor4);
@@ -230,7 +242,8 @@ const AddSensorScreen = ({navigation}) => {
                   sensor4 = sensor4;
                   setSensor4(sensor4);
                 }
-                sensorName(rpiInfo.rpi_id, sensor1, sensor2, sensor3, sensor4);
+                //sensorName(rpiInfo.rpi_id, sensor1, sensor2, sensor3, sensor4);
+                sensorName(rpiInfo.rpi_id, sensor1, sensor2, sensor4);
               }}
             />
           </View>
