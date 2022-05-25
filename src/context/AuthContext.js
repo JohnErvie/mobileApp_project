@@ -147,6 +147,8 @@ export const AuthProvider = ({children}) => {
       return getData(rpi, sensor, 'minute(datetime)');
     } else if (Val == 'Hour') {
       return getData(rpi, sensor, 'hour(datetime)');
+    } else if (Val == 'Week') {
+      return getData(rpi, sensor, 'week(datetime)');
     } else if (Val == 'Month') {
       return getData(rpi, sensor, 'month(datetime)');
     }
@@ -227,7 +229,7 @@ export const AuthProvider = ({children}) => {
       .then(response => response.json())
       .then(response => {
         //alert(response[0].power_consumption);
-        //console.log(response[0].power_consumption.length);
+        console.log(response[0].power_consumption);
 
         var dataPC = [];
         var dataTime = [];
@@ -243,7 +245,11 @@ export const AuthProvider = ({children}) => {
 
           if (time == 'minute(datetime)') {
             dataPC.push(
-              response[0].power_consumption[x]['sum(power_consumption)'],
+              String(
+                parseFloat(
+                  response[0].power_consumption[x]['sum(power_consumption)'],
+                ) / 1000,
+              ),
             );
 
             //converting to minutes
@@ -271,6 +277,18 @@ export const AuthProvider = ({children}) => {
             let modifiedTime =
               splitConverted[0] + converted.slice(-2, converted.length); //ex. 3AM
             dataTime.push(modifiedTime);
+          } else if (time == 'week(datetime)') {
+            dataPC.push(
+              String(
+                parseFloat(
+                  response[0].power_consumption[x]['sum(power_consumption)'],
+                ) / 1000,
+              ),
+            );
+
+            //converting to weeks
+            let converted = dayNameConvert(dateOnly); //ex. mon
+            dataTime.push(converted);
           } else if (time == 'month(datetime)') {
             dataPC.push(
               String(

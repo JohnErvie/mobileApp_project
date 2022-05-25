@@ -159,6 +159,7 @@ const HomeScreen = ({navigation}) => {
             selectedValue={pickerVal[0]}>
             <Picker.Item label="Minute" value="Minute" />
             <Picker.Item label="Hour" value="Hour" />
+            <Picker.Item label="Week" value="Week" />
             <Picker.Item label="Month" value="Month" />
           </Picker>
 
@@ -204,8 +205,9 @@ const HomeScreen = ({navigation}) => {
                 ],
                 //legend: ["Rainy Days"] // optional
               }}
-              yAxisSuffix={pickerVal[0] === 'Minute' ? 'W' : 'KW'}
+              yAxisSuffix={'KW'}
               verticalLabelRotation={360 - 30}
+              //horizontalLabelRotation={180}
               width={screenWidth}
               height={280}
               chartConfig={
