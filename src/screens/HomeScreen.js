@@ -19,7 +19,7 @@ import {AntDesign, Feather, Entypo} from '@expo/vector-icons';
 import RadioButtonRN from 'radio-buttons-react-native';
 import {RadioButton} from 'react-native-paper';
 
-import {LineChart} from 'react-native-chart-kit';
+import {LineChart, ProgressChart} from 'react-native-chart-kit';
 import {Dimensions} from 'react-native';
 
 import Svg, {G, Circle} from 'react-native-svg';
@@ -56,6 +56,9 @@ const HomeScreen = ({navigation}) => {
     sensorInfo,
     todayUsage,
     checkingData,
+
+    getDataUsage,
+    progressChartData,
   } = useContext(AuthContext);
 
   useEffect(() => {
@@ -65,6 +68,7 @@ const HomeScreen = ({navigation}) => {
         //you async action is here
         if (componentMounted) {
           displayGraphRadio(radioValue[0]);
+          getDataUsage('day');
           //detectAnomaly();
         }
       };
@@ -108,8 +112,14 @@ const HomeScreen = ({navigation}) => {
     wait(0).then(() => {
       setRefreshing(false);
       displayGraphRadio(radioValue[0]);
+      getDataUsage('day');
     });
   }, []);
+
+  const dataProgressChart = {
+    labels: ['Laravel', 'PHP', 'html', 'javascript'], // optional
+    data: [0.4, 0.7, 0.8, 0.4],
+  };
 
   return (
     <SafeAreaView>
@@ -222,7 +232,7 @@ const HomeScreen = ({navigation}) => {
               }}
             />
           </View>
-          {/*
+
           <View
             style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
             <View
@@ -254,85 +264,38 @@ const HomeScreen = ({navigation}) => {
               }}
             />
           </View>
-          
-          <View>
-            <View style={styles.graphWrapper}>
-              <Svg height="100" width="100" viewBox="0 0 180 180">
-                <G rotation={-90} originX="90" originY="90">
-                  {sensorsVarDay.total === 0 ? (
-                    <Circle
-                      cx="50%"
-                      cy="50%"
-                      r={sensorsVarDay.radius}
-                      stroke="#F1F6F9"
-                      fill="transparent"
-                      strokeWidth="40"
-                    />
-                  ) : (
-                    <>
-                      <Circle
-                        cx="50%"
-                        cy="50%"
-                        r={sensorsVarDay.radius}
-                        stroke="#6de38c"
-                        fill="transparent"
-                        strokeWidth="40"
-                        strokeDasharray={sensorsVarDay.circleCircumference}
-                        strokeDashoffset={sensorsVarDay.s1StrokeDashoffset}
-                        rotation={0}
-                        originX="90"
-                        originY="90"
-                        strokeLinecap="round"
-                      />
-                      <Circle
-                        cx="50%"
-                        cy="50%"
-                        r={sensorsVarDay.radius}
-                        stroke="#6daee3"
-                        fill="transparent"
-                        strokeWidth="40"
-                        strokeDasharray={sensorsVarDay.circleCircumference}
-                        strokeDashoffset={sensorsVarDay.s2StrokeDashoffset}
-                        rotation={sensorsVarDay.s1Angle}
-                        originX="90"
-                        originY="90"
-                        strokeLinecap="round"
-                      />
-                      <Circle
-                        cx="50%"
-                        cy="50%"
-                        r={sensorsVarDay.radius}
-                        stroke="#e3966d"
-                        fill="transparent"
-                        strokeWidth="40"
-                        strokeDasharray={sensorsVarDay.circleCircumference}
-                        strokeDashoffset={sensorsVarDay.s3StrokeDashoffset}
-                        rotation={sensorsVarDay.s2Angle}
-                        originX="90"
-                        originY="90"
-                        strokeLinecap="round"
-                      />
-                      <Circle
-                        cx="50%"
-                        cy="50%"
-                        r={sensorsVarDay.radius}
-                        stroke="#e36d6d"
-                        fill="transparent"
-                        strokeWidth="40"
-                        strokeDasharray={sensorsVarDay.circleCircumference}
-                        strokeDashoffset={sensorsVarDay.s4StrokeDashoffset}
-                        rotation={sensorsVarDay.s4Angle}
-                        originX="90"
-                        originY="90"
-                        strokeLinecap="round"
-                      />
-                    </>
-                  )}
-                </G>
-              </Svg>
-            </View>
+
+          <View style={styles.mainbox}>
+            <ProgressChart
+              data={progressChartData}
+              width={340}
+              height={220}
+              strokeWidth={16}
+              radius={32}
+              chartConfig={{
+                backgroundColor: '#218838',
+                backgroundGradientFrom: '#fff',
+                backgroundGradientTo: '#e2e2e2',
+                decimalPlaces: 2, // optional, defaults to 2dp
+                color: (opacity = 1) => `rgba(13, 136, 56, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(0, 0,0, ${opacity})`,
+                style: {
+                  borderRadius: 16,
+                },
+                propsForDots: {
+                  r: '6',
+                  strokeWidth: '2',
+                  stroke: '#218838',
+                },
+              }}
+              style={{
+                marginVertical: 8,
+                borderRadius: 16,
+              }}
+              hideLegend={false}
+            />
           </View>
-          */}
+          {/**/}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -354,6 +317,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 8,
     color: '#000',
+  },
+  mainbox: {
+    textAlign: 'center',
+    justifyContent: 'space-between',
   },
 });
 
