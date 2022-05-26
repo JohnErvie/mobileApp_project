@@ -55,8 +55,14 @@ export const AuthProvider = ({children}) => {
 
   //for progressChart in homescreen
   var [progressChartData, setProgressChartData] = useState({
-    labels: [''],
-    data: [0],
+    sensorName: [''],
+    valSensors: [0],
+    sensorsStrokeDashoffset: [0],
+    sensorsAngle: [0],
+    Percentage: [0],
+    total: [0],
+    radius: 70,
+    circleCircumference: 2 * Math.PI * 70,
   });
 
   //function to convert from 24 hr to 12 hr format
@@ -443,20 +449,56 @@ export const AuthProvider = ({children}) => {
             todayUsage = dataUsage;
             setTodayUsage(todayUsage);
 
-            var tmpLabels = [];
-            var tmpData = [];
+            var tmpSensorName = [];
+            var tmpSensors = [];
+            var tmpTotal = 0;
+            var tmpPercentage = [];
+            var tmpStrokeDashoffset = [];
+            var tmpAngle = [];
+
+            var radius = 70;
+            var circleCircumference = 2 * Math.PI * radius;
+
+            progressChartData.radius = radius;
+            progressChartData.circleCircumference = circleCircumference;
+
             for (let i = 0; i < todayUsage.length; i++) {
-              tmpLabels.push(todayUsage[i]['sname']);
-              tmpData.push(
+              tmpSensorName.push(todayUsage[i]['sname']);
+              tmpSensors.push(
+                parseFloat(todayUsage[i]['sum(power_consumption)']),
+              );
+              tmpTotal =
+                tmpTotal + parseFloat(todayUsage[i]['sum(power_consumption)']);
+              tmpPercentage.push(
                 parseFloat(
-                  parseFloat(
-                    parseFloat(todayUsage[i]['Percentage']) / 100,
-                  ).toFixed(2),
+                  parseFloat(parseFloat(todayUsage[i]['Percentage'])).toFixed(
+                    2,
+                  ),
                 ),
               );
+              tmpStrokeDashoffset.push(
+                circleCircumference -
+                  (circleCircumference *
+                    parseFloat(parseFloat(todayUsage[i]['Percentage'])).toFixed(
+                      2,
+                    )) /
+                    100,
+              );
+              tmpAngle.push(
+                (parseFloat(todayUsage[i]['sum(power_consumption)']) /
+                  parseFloat(todayUsage[i]['Total'])) *
+                  360,
+              );
             }
-            progressChartData.labels = tmpLabels;
-            progressChartData.data = tmpData;
+
+            progressChartData.sensorName = tmpSensorName;
+            progressChartData.valSensors = tmpSensors;
+            progressChartData.total = parseFloat(tmpTotal);
+            progressChartData.Percentage = tmpPercentage;
+            progressChartData.sensorsStrokeDashoffset = tmpStrokeDashoffset;
+
+            tmpAngle[2] = tmpAngle[0] + tmpAngle[1];
+            progressChartData.sensorsAngle = tmpAngle;
 
             setProgressChartData(progressChartData);
 
@@ -473,7 +515,7 @@ export const AuthProvider = ({children}) => {
 
             //return monthUsage;
           }
-          console.log(todayUsage);
+          //console.log(todayUsage);
         }
       })
       .catch(error => {

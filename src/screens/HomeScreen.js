@@ -134,6 +134,7 @@ const HomeScreen = ({navigation}) => {
             <Text style={styles.welcome}>Power Consumption Data</Text>
           </View>
           <View>
+            {/*radio button for specific location of sensor*/}
             <RadioButtonRN
               data={[
                 {
@@ -162,6 +163,7 @@ const HomeScreen = ({navigation}) => {
             />
           </View>
 
+          {/*drop down menu, minutes, hour, week, month*/}
           <Picker
             style={{height: 50, width: 150, color: '#000'}}
             dropdownIconColor="black"
@@ -173,6 +175,7 @@ const HomeScreen = ({navigation}) => {
             <Picker.Item label="Month" value="Month" />
           </Picker>
 
+          {/*For normal dot and anomaly dot*/}
           <View
             style={{
               justifyContent: 'center',
@@ -232,7 +235,7 @@ const HomeScreen = ({navigation}) => {
               }}
             />
           </View>
-
+          {/*drop down menu, minutes, hour, week, month*/}
           <View
             style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
             <View
@@ -264,38 +267,148 @@ const HomeScreen = ({navigation}) => {
               }}
             />
           </View>
-
-          <View style={styles.mainbox}>
-            <ProgressChart
-              data={progressChartData}
-              width={340}
-              height={220}
-              strokeWidth={16}
-              radius={32}
-              chartConfig={{
-                backgroundColor: '#218838',
-                backgroundGradientFrom: '#fff',
-                backgroundGradientTo: '#e2e2e2',
-                decimalPlaces: 2, // optional, defaults to 2dp
-                color: (opacity = 1) => `rgba(13, 136, 56, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(0, 0,0, ${opacity})`,
-                style: {
-                  borderRadius: 16,
-                },
-                propsForDots: {
-                  r: '6',
-                  strokeWidth: '2',
-                  stroke: '#218838',
-                },
-              }}
-              style={{
-                marginVertical: 8,
-                borderRadius: 16,
-              }}
-              hideLegend={false}
-            />
+        </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            alignContent: 'center',
+          }}>
+          <View style={styles.graphWrapper}>
+            <Svg height="160" width="160" viewBox="0 0 180 180">
+              <G rotation={-90} originX="90" originY="90">
+                {progressChartData['total'] === 0 ? (
+                  <Circle
+                    cx="50%"
+                    cy="50%"
+                    r={progressChartData['radius']}
+                    stroke="#F1F6F9"
+                    fill="transparent"
+                    strokeWidth="40"
+                  />
+                ) : (
+                  <>
+                    <Circle
+                      cx="50%"
+                      cy="50%"
+                      r={progressChartData['radius']}
+                      stroke="#f05454"
+                      fill="transparent"
+                      strokeWidth="40"
+                      strokeDasharray={progressChartData['circleCircumference']}
+                      strokeDashoffset={
+                        progressChartData['sensorsStrokeDashoffset'][0]
+                      }
+                      rotation={0}
+                      originX="90"
+                      originY="90"
+                      strokeLinecap="round"
+                    />
+                    <Circle
+                      cx="50%"
+                      cy="50%"
+                      r={progressChartData['radius']}
+                      stroke="#49854f"
+                      fill="transparent"
+                      strokeWidth="40"
+                      strokeDasharray={progressChartData['circleCircumference']}
+                      strokeDashoffset={
+                        progressChartData['sensorsStrokeDashoffset'][1]
+                      }
+                      rotation={progressChartData['sensorsAngle'][0]}
+                      originX="90"
+                      originY="90"
+                      strokeLinecap="round"
+                    />
+                    <Circle
+                      cx="50%"
+                      cy="50%"
+                      r={progressChartData['radius']}
+                      stroke="#133e80"
+                      fill="transparent"
+                      strokeWidth="40"
+                      strokeDasharray={progressChartData['circleCircumference']}
+                      strokeDashoffset={
+                        progressChartData['sensorsStrokeDashoffset'][2]
+                      }
+                      rotation={progressChartData['sensorsAngle'][2]}
+                      originX="90"
+                      originY="90"
+                      strokeLinecap="round"
+                    />
+                  </>
+                )}
+              </G>
+            </Svg>
+            <Text style={styles.label}>
+              {(progressChartData.total / 1000000).toFixed(2) + ' MW'}
+            </Text>
           </View>
-          {/**/}
+          <View
+            style={{
+              justifyContent: 'flex-start',
+              flexDirection: 'column',
+              marginLeft: 20,
+            }}>
+            <View style={{flexDirection: 'row'}}>
+              <View
+                style={[
+                  styles.dot,
+                  {backgroundColor: '#f05454', marginTop: 5},
+                ]}></View>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  color: '#000',
+                  fontWeight: 'bold',
+                  marginLeft: 5,
+                }}>
+                {progressChartData['sensorName'][0] +
+                  ' ' +
+                  progressChartData['Percentage'][0] +
+                  '%'}
+              </Text>
+            </View>
+            <View style={{flexDirection: 'row'}}>
+              <View
+                style={[
+                  styles.dot,
+                  {backgroundColor: '#49854f', marginTop: 5},
+                ]}></View>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  color: '#000',
+                  fontWeight: 'bold',
+                  marginLeft: 5,
+                }}>
+                {progressChartData['sensorName'][1] +
+                  ' ' +
+                  progressChartData['Percentage'][1] +
+                  '%'}
+              </Text>
+            </View>
+            <View style={{flexDirection: 'row'}}>
+              <View
+                style={[
+                  styles.dot,
+                  {backgroundColor: '#133e80', marginTop: 5},
+                ]}></View>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  color: '#000',
+                  fontWeight: 'bold',
+                  marginLeft: 5,
+                }}>
+                {progressChartData['sensorName'][2] +
+                  ' ' +
+                  progressChartData['Percentage'][2] +
+                  '%'}
+              </Text>
+            </View>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -318,9 +431,17 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     color: '#000',
   },
-  mainbox: {
+  graphWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  label: {
+    position: 'absolute',
     textAlign: 'center',
-    justifyContent: 'space-between',
+    fontWeight: '700',
+    fontSize: 15,
+    color: '#000',
+    fontWeight: 'bold',
   },
 });
 
