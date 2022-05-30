@@ -12,6 +12,8 @@ target 'mobileApp' do
 
   pod 'ReactNativeART', :path => '../node_modules/@react-native-community/art'
 
+  pod 'RNDateTimePicker', :path => '../node_modules/@react-native-community/datetimepicker'
+
   post_integrate do |installer|
     begin
       expo_patch_react_imports!(installer)

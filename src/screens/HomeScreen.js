@@ -7,6 +7,9 @@ import {
   SafeAreaView,
   ScrollView,
   RefreshControl,
+  Platform,
+  Dimensions,
+  TouchableOpacity,
 } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import {AuthContext} from '../context/AuthContext';
@@ -20,9 +23,14 @@ import RadioButtonRN from 'radio-buttons-react-native';
 import {RadioButton} from 'react-native-paper';
 
 import {LineChart, ProgressChart} from 'react-native-chart-kit';
-import {Dimensions} from 'react-native';
 
 import Svg, {G, Circle} from 'react-native-svg';
+
+//for date picker
+//import {DatePicker} from 'react-native-wheel-pick';
+//import DatePicker from 'react-native-date-picker';
+
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -67,8 +75,8 @@ const HomeScreen = ({navigation}) => {
       const fetchData = async () => {
         //you async action is here
         if (componentMounted) {
-          displayGraphRadio(radioValue[0]);
-          getDataUsage('day');
+          //displayGraphRadio(radioValue[0]);
+          //=getDataUsage('day');
           //detectAnomaly();
         }
       };
@@ -83,7 +91,7 @@ const HomeScreen = ({navigation}) => {
       const fetchDataDetection = async () => {
         //you async action is here
         if (componentMountedDetection) {
-          //detectAnomaly(); // notification when anomaly detected
+          detectAnomaly(); // notification when anomaly detected
           //getDataInfoUsage('day', 'Sensor 1');
           //console.log(timeUsage, infoUsage);
         }
@@ -111,14 +119,70 @@ const HomeScreen = ({navigation}) => {
     setRefreshing(true);
     wait(0).then(() => {
       setRefreshing(false);
-      displayGraphRadio(radioValue[0]);
-      getDataUsage('day');
+      //displayGraphRadio(radioValue[0]);
+      //getDataUsage('day');
     });
   }, []);
 
-  const dataProgressChart = {
-    labels: ['Laravel', 'PHP', 'html', 'javascript'], // optional
-    data: [0.4, 0.7, 0.8, 0.4],
+  //for date picker
+  const [curDate, setCurDate] = useState(new Date());
+  const [date, setDate] = useState(new Date());
+  const [mode, setMode] = useState('date');
+  const [show, setShow] = useState(false);
+  const [text, setText] = useState(date);
+
+  var splitDate = curDate.toLocaleString().split(' ');
+  splitDate = splitDate.filter(v => v !== '');
+  const [selectedTime, setSelectedTime] = useState('');
+  const [selectedDate, setSelectedDate] = '';
+  const [titleDate, setTitleDate] = useState(
+    splitDate[1] +
+      ' ' +
+      splitDate[2] +
+      ', ' +
+      splitDate[4] +
+      ' ' +
+      splitDate[3],
+  );
+
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate;
+    setShow(false);
+    setDate(currentDate);
+
+    let tempDate = new Date(currentDate);
+    let fDate =
+      tempDate.getFullYear() +
+      '-' +
+      tempDate.getMonth() +
+      '-' +
+      tempDate.getDate();
+    let fTime = tempDate.getHours() + ':' + tempDate.getMinutes();
+    setText(fDate + ' ' + fTime);
+
+    var monthName = tempDate.toLocaleString().split(' ');
+
+    monthName = monthName.filter(v => v !== '');
+
+    console.log(moment(tempDate).format('YYYY-MM-DD hh:mm A'));
+
+    //console.log(monthName);
+    setTitleDate(
+      monthName[1] +
+        ' ' +
+        tempDate.getDate() +
+        ', ' +
+        tempDate.getFullYear() +
+        ' ' +
+        monthName[3],
+    );
+
+    //console.log(titleDate);
+  };
+
+  const showMode = currentMode => {
+    setShow(true);
+    setMode(currentMode);
   };
 
   return (
@@ -174,6 +238,76 @@ const HomeScreen = ({navigation}) => {
             <Picker.Item label="Week" value="Week" />
             <Picker.Item label="Month" value="Month" />
           </Picker>
+
+          <View style={{marginBottom: 20}}>
+            <TouchableOpacity
+              onPress={() => {
+                showMode('date');
+              }}>
+              <View style={styles.button}>
+                <View style={{marginRight: 10, marginLeft: 10}}>
+                  <AntDesign name="edit" size={24} color="black" />
+                </View>
+                <Text style={styles.buttonText}>{'Date'}</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+          <View style={{marginBottom: 20}}>
+            <TouchableOpacity
+              onPress={() => {
+                showMode('time');
+              }}>
+              <View style={styles.button}>
+                <View style={{marginRight: 10, marginLeft: 10}}>
+                  <AntDesign name="edit" size={24} color="black" />
+                </View>
+                <Text style={styles.buttonText}>{'Time'}</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          {show && (
+            <DateTimePicker
+              testID="dateTimePicker"
+              value={date}
+              mode={mode}
+              onChange={onChange}
+            />
+          )}
+
+          {/*line title date*/}
+          <View
+            style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
+            <View
+              style={{
+                flex: 1,
+                height: 2,
+                backgroundColor: '#6b6c6e',
+                marginLeft: 20,
+                marginRight: 10,
+              }}
+            />
+            <View>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  color: '#6b6c6e',
+                  fontWeight: 'bold',
+                  marginBottom: 5,
+                }}>
+                {titleDate}
+              </Text>
+            </View>
+            <View
+              style={{
+                flex: 1,
+                height: 2,
+                backgroundColor: '#6b6c6e',
+                marginLeft: 10,
+                marginRight: 20,
+              }}
+            />
+          </View>
 
           {/*For normal dot and anomaly dot*/}
           <View
@@ -235,7 +369,7 @@ const HomeScreen = ({navigation}) => {
               }}
             />
           </View>
-          {/*drop down menu, minutes, hour, week, month*/}
+          {/*line title total power usage*/}
           <View
             style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
             <View
@@ -253,8 +387,9 @@ const HomeScreen = ({navigation}) => {
                   textAlign: 'center',
                   color: '#6b6c6e',
                   fontWeight: 'bold',
+                  marginBottom: 5,
                 }}>
-                {'Power Usage Today'}
+                {'Total Power Usage'}
               </Text>
             </View>
             <View
@@ -442,6 +577,13 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#000',
     fontWeight: 'bold',
+  },
+  buttonText: {
+    color: 'black',
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    fontSize: 16,
+    textAlign: 'center',
   },
 });
 

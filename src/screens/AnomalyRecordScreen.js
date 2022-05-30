@@ -19,6 +19,8 @@ import {Ionicons, AntDesign} from '@expo/vector-icons';
 
 import {Picker} from '@react-native-picker/picker';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const ModalPoup = ({visible, children}) => {
   const [showModal, setShowModal] = React.useState(visible);
   const scaleValue = React.useRef(new Animated.Value(0)).current;
@@ -63,11 +65,73 @@ const AnomalyRecordScreen = () => {
   var [pickerRows, setPickerRows] = React.useState('10');
   var [pickerSensor, setPickerSensor] = React.useState('All');
 
+  const [filterData, setFilterData] = React.useState([]);
+
   const [visible, setVisible] = React.useState(false);
+
+  //loading current filter data
+  const loadFilterData = async (
+    pickerSort,
+    pickerDate,
+    pickerRows,
+    pickerSensor,
+  ) => {
+    try {
+      AsyncStorage.removeItem('filterData');
+      setFilterData({});
+
+      let filterData1 = [
+        {
+          Sort: pickerSort,
+          Date: pickerDate,
+          Rows: pickerRows,
+          Sensor: pickerSensor,
+        },
+      ];
+      //setFilterData(filterData1);
+
+      AsyncStorage.setItem('filterData', JSON.stringify(filterData1));
+
+      let filterData = await AsyncStorage.getItem('filterData');
+      filterData = JSON.parse(filterData);
+      if (filterData) {
+        setFilterData(filterData);
+        console.log(filterData);
+        getAnomalyData(
+          filterData.Sort,
+          filterData.Date,
+          filterData.Rows,
+          filterData.Sensor,
+        );
+      }
+    } catch (e) {
+      console.log(`error ${e}`);
+    }
+  };
+
+  const getFilterData = async () => {
+    try {
+      let filterData = await AsyncStorage.getItem('filterData');
+      filterData = JSON.parse(filterData);
+
+      if (filterData) {
+        setFilterData(filterData);
+        getAnomalyData(
+          filterData[0].Sort,
+          filterData[0].Date,
+          filterData[0].Rows,
+          filterData[0].Sensor,
+        );
+      }
+    } catch (e) {
+      console.log(`error ${e}`);
+    }
+  };
 
   //on first mount, fetch data.
   useEffect(() => {
-    getAnomalyData(pickerSort, pickerDate, pickerRows, pickerSensor);
+    loadFilterData(pickerSort, pickerDate, pickerRows, pickerSensor);
+    //console.log(filterData);
     //console.log(anomalyData);
   }, []);
 
@@ -81,7 +145,11 @@ const AnomalyRecordScreen = () => {
     setRefreshing(true);
     wait(0).then(() => {
       setRefreshing(false);
-      getAnomalyData(pickerSort, pickerDate, pickerRows, pickerSensor);
+      //loadFilterData();
+      //console.log(filterData);
+      getFilterData();
+      //console.log('ehhh' + filterData[0].Date);
+      //loadFilterData();
     });
   }, []);
 
@@ -375,6 +443,18 @@ const AnomalyRecordScreen = () => {
             <Button
               title="Apply"
               onPress={() => {
+                AsyncStorage.removeItem('filterData');
+                setFilterData({});
+                let filterData = [
+                  {
+                    Sort: pickerSort,
+                    Date: pickerDate,
+                    Rows: pickerRows,
+                    Sensor: pickerSensor,
+                  },
+                ];
+                setFilterData(filterData);
+                AsyncStorage.setItem('filterData', JSON.stringify(filterData));
                 getAnomalyData(
                   pickerSort,
                   pickerDate,

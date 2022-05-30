@@ -64,7 +64,7 @@ const CollectDataScreen = ({navigation}) => {
               Collecting And Processing The Data{' '}
             </Text>
             <Text style={styles.textBold}>
-              {'This process requires atleast 1 day data to proceed'}
+              {'This process requires at least 1 - 2 days of data to complete.'}
             </Text>
           </View>
           <View style={{marginBottom: 10}}>

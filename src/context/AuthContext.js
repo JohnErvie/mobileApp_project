@@ -502,7 +502,7 @@ export const AuthProvider = ({children}) => {
 
             setProgressChartData(progressChartData);
 
-            console.log(progressChartData);
+            //console.log(progressChartData);
             //return todayUsage;
           } else if (time == 'week') {
             weekUsage = dataUsage;
@@ -621,7 +621,7 @@ export const AuthProvider = ({children}) => {
   };
 
   const getAnomalyData = (sort, date, rows, sensor) => {
-    //console.log(rpiInfo.rpi_id);
+    //console.log(date);
 
     var InsertAPIURL = `${BASE_URL}/anomaly_list.php`;
 
@@ -646,8 +646,8 @@ export const AuthProvider = ({children}) => {
       .then(response => response.json())
       .then(response => {
         //alert(response[0].power_consumption);
-        //console.log(response[0]);
-        if (response[0].Anomaly.length <= 0) {
+        //console.log(date);
+        if (response[0].Anomaly == null || response[0].Anomaly.length <= 0) {
           //change this to <=
           anomalyData = null;
           setAnomalyData(anomalyData);
@@ -781,7 +781,7 @@ export const AuthProvider = ({children}) => {
 
         }
         */
-        var dataNeeded = 18000;
+        var dataNeeded = 1440;
         if (
           parseInt(response[0].Sensor1) >= dataNeeded &&
           parseInt(response[0].Sensor2) >= dataNeeded &&
@@ -912,6 +912,7 @@ export const AuthProvider = ({children}) => {
   useEffect(() => {
     //isLoggedIn();
     isConnectedIn();
+    //getDataUsage('day');
     //displayGraphRadio(radioValue[0]);
     //detectAnomaly();
     //getData();
