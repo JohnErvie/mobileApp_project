@@ -11,6 +11,7 @@ import UsageTodayScreen from '../screens/UsageTodayScreen';
 import UsageWeekScreen from '../screens/UsageWeekScreen';
 import UsageMonthScreen from '../screens/UsageMonthScreen';
 import UsageInfoScreen from '../screens/UsageInfoScreen';
+import AnomalyInfoScreen from '../screens/AnomalyInfoScreen';
 import ConnectScreen from '../screens/ConnectScreen';
 import ScanScreen from '../screens/ScanScreen';
 import AddSensorScreen from '../screens/AddSensorScreen';
@@ -255,6 +256,13 @@ const Navigation = () => {
                 //options={{headerShown: true}}
                 options={({route}) => ({title: route.params.name})}
               />
+
+              <Stack.Screen
+                name="Anomaly Info"
+                component={AnomalyInfoScreen}
+                options={{headerShown: true}}
+              />
+
               <Stack.Screen
                 name="Edit Sensor Names"
                 component={ChangeSensorScreen}

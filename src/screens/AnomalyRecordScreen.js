@@ -56,7 +56,7 @@ const ModalPoup = ({visible, children}) => {
   );
 };
 
-const AnomalyRecordScreen = () => {
+const AnomalyRecordScreen = ({navigation}) => {
   const {anomalyData, getAnomalyData, sensorInfo} = useContext(AuthContext);
 
   //for anomaly filters
@@ -160,13 +160,16 @@ const AnomalyRecordScreen = () => {
     backgroundColor,
     textColor,
     name,
+    item,
   }) => (
-    <TouchableOpacity style={[styles.item, backgroundColor]}>
+    <TouchableOpacity
+      onPress={() => navigation.navigate('Anomaly Info', {item})}
+      style={[styles.item, backgroundColor]}>
       <Text style={[styles.title, textColor, {marginRight: 50}]}>{name}</Text>
       <Text style={[styles.title, textColor, {marginRight: 50}]}>
         {datetime.slice(0, 16)}
       </Text>
-      <Text style={[styles.title, textColor]}>{power}</Text>
+      <Text style={[styles.title, textColor]}>{power + ' W'}</Text>
     </TouchableOpacity>
   );
 
@@ -176,6 +179,7 @@ const AnomalyRecordScreen = () => {
 
     return (
       <Item
+        item={item}
         name={item.sname}
         sensor={item.sensor}
         datetime={item.datetime}
