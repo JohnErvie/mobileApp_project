@@ -22,6 +22,9 @@ export const AuthProvider = ({children}) => {
   var [RPI_ip_address, setRPI_IpAddress] = useState(null);
   var [pickerVal, setPickerVal] = useState(['Minute']);
 
+  var [hasPC_DATA, setHasPC_DATA] = useState(false);
+  var [todayUsageHome, setTodayUsageHome] = useState(true);
+
   //const [globalInfo, setGlobalInfo] = useState({});
   const [rpiInfo, setRpiInfo] = useState({});
   const [isConnected, setIsConnected] = useState(false);
@@ -358,6 +361,9 @@ export const AuthProvider = ({children}) => {
         //console.log(status);
 
         if (dataPC.length > 0 || dataTime.length > 0) {
+          hasPC_DATA = true;
+          setHasPC_DATA(hasPC_DATA);
+
           var newData = [];
 
           for (let i = 0; i < dataPC.length; i++) {
@@ -382,6 +388,8 @@ export const AuthProvider = ({children}) => {
           //console.log(pcInfo);
           //console.log(timeInfo);
         } else {
+          hasPC_DATA = false;
+          setHasPC_DATA(hasPC_DATA);
           pcInfo = [0];
           setPCInfo(pcInfo);
           //console.log(pcInfo);
@@ -584,19 +592,9 @@ export const AuthProvider = ({children}) => {
 
           //console.log(dataUsage);
           if (time == 'day') {
-            todayUsage = dataUsage;
-            setTodayUsage(todayUsage);
+            todayUsageHome = dataUsage;
+            setTodayUsageHome(todayUsageHome);
             //return todayUsage;
-          } else if (time == 'week') {
-            weekUsage = dataUsage;
-            setWeekUsage(weekUsage);
-
-            //return weekUsage;
-          } else if (time == 'month') {
-            monthUsage = dataUsage;
-            setMonthUsage(monthUsage);
-
-            //return monthUsage;
           }
         } else {
           var Summary = parseFloat(
@@ -619,8 +617,8 @@ export const AuthProvider = ({children}) => {
 
           //console.log(dataUsage);
           if (time == 'day') {
-            todayUsage = dataUsage;
-            setTodayUsage(todayUsage);
+            todayUsageHome = dataUsage;
+            setTodayUsageHome(todayUsageHome);
 
             var tmpSensorName = [];
             var tmpSensors = [];
@@ -635,31 +633,32 @@ export const AuthProvider = ({children}) => {
             progressChartData.radius = radius;
             progressChartData.circleCircumference = circleCircumference;
 
-            for (let i = 0; i < todayUsage.length; i++) {
-              tmpSensorName.push(todayUsage[i]['sname']);
+            for (let i = 0; i < todayUsageHome.length; i++) {
+              tmpSensorName.push(todayUsageHome[i]['sname']);
               tmpSensors.push(
-                parseFloat(todayUsage[i]['sum(power_consumption)']),
+                parseFloat(todayUsageHome[i]['sum(power_consumption)']),
               );
               tmpTotal =
-                tmpTotal + parseFloat(todayUsage[i]['sum(power_consumption)']);
+                tmpTotal +
+                parseFloat(todayUsageHome[i]['sum(power_consumption)']);
               tmpPercentage.push(
                 parseFloat(
-                  parseFloat(parseFloat(todayUsage[i]['Percentage'])).toFixed(
-                    2,
-                  ),
+                  parseFloat(
+                    parseFloat(todayUsageHome[i]['Percentage']),
+                  ).toFixed(2),
                 ),
               );
               tmpStrokeDashoffset.push(
                 circleCircumference -
                   (circleCircumference *
-                    parseFloat(parseFloat(todayUsage[i]['Percentage'])).toFixed(
-                      2,
-                    )) /
+                    parseFloat(
+                      parseFloat(todayUsageHome[i]['Percentage']),
+                    ).toFixed(2)) /
                     100,
               );
               tmpAngle.push(
-                (parseFloat(todayUsage[i]['sum(power_consumption)']) /
-                  parseFloat(todayUsage[i]['Total'])) *
+                (parseFloat(todayUsageHome[i]['sum(power_consumption)']) /
+                  parseFloat(todayUsageHome[i]['Total'])) *
                   360,
               );
             }
@@ -675,7 +674,7 @@ export const AuthProvider = ({children}) => {
 
             setProgressChartData(progressChartData);
 
-            //console.log(progressChartData);
+            console.log(progressChartData);
             //return todayUsage;
           } else if (time == 'week') {
             weekUsage = dataUsage;
@@ -1128,6 +1127,9 @@ export const AuthProvider = ({children}) => {
         s4Status,
 
         progressChartData,
+
+        hasPC_DATA,
+        todayUsageHome,
 
         tmpDateTime,
         setTmpDateTime,

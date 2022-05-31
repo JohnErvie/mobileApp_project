@@ -80,6 +80,9 @@ const HomeScreen = ({navigation}) => {
     setTmpDateTime,
 
     getDataUsageHome,
+
+    hasPC_DATA,
+    todayUsageHome,
   } = useContext(AuthContext);
 
   const [resetToCurTime, setResetToCurTime] = useState('1'); //for date and time
@@ -504,66 +507,93 @@ const HomeScreen = ({navigation}) => {
             </Picker>
           </View>
 
-          {/*For normal dot and anomaly dot*/}
-          <View
-            style={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              alignContent: 'center',
-              flexDirection: 'row',
-            }}>
-            <View style={[styles.dot, {backgroundColor: '#0ffc03'}]}></View>
-            <Text
+          {/* Line Chart */}
+          {hasPC_DATA ? (
+            <>
+              {/*For normal dot and anomaly dot*/}
+              <View
+                style={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  alignContent: 'center',
+                  flexDirection: 'row',
+                }}>
+                <View style={[styles.dot, {backgroundColor: '#0ffc03'}]}></View>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    color: '#000',
+                    fontWeight: 'bold',
+                    marginRight: 50,
+                    marginLeft: 5,
+                  }}>
+                  {'Normal'}
+                </Text>
+                <View style={[styles.dot, {backgroundColor: '#fc0303'}]}></View>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    color: '#000',
+                    fontWeight: 'bold',
+                    marginLeft: 5,
+                  }}>
+                  {'Anomaly'}
+                </Text>
+              </View>
+              <View>
+                <LineChart
+                  data={{
+                    labels: timeInfo,
+                    datasets: [
+                      {
+                        data: pcInfo,
+                        color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`, // optional
+                        strokeWidth: 2, // optional
+                      },
+                    ],
+                    //legend: ["Rainy Days"] // optional
+                  }}
+                  yAxisSuffix={'KW'}
+                  verticalLabelRotation={360 - 30}
+                  //horizontalLabelRotation={180}
+                  width={screenWidth}
+                  height={280}
+                  chartConfig={
+                    pickerVal[0] === 'Minute' ? chartConfig2 : chartConfig
+                  }
+                  getDotColor={(dataPoint, dataPointIndex) => {
+                    //console.log(currentStatus);
+                    if (currentStatus[dataPointIndex] == 'Anomaly')
+                      return '#ff0000';
+                    // red
+                    else return '#00ff00'; // green
+                  }}
+                />
+              </View>
+            </>
+          ) : (
+            <View
               style={{
-                textAlign: 'center',
-                color: '#000',
-                fontWeight: 'bold',
-                marginRight: 50,
-                marginLeft: 5,
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: 50,
+                marginBottom: 50,
               }}>
-              {'Normal'}
-            </Text>
-            <View style={[styles.dot, {backgroundColor: '#fc0303'}]}></View>
-            <Text
-              style={{
-                textAlign: 'center',
-                color: '#000',
-                fontWeight: 'bold',
-                marginLeft: 5,
-              }}>
-              {'Anomaly'}
-            </Text>
-          </View>
-          <View>
-            <LineChart
-              data={{
-                labels: timeInfo,
-                datasets: [
+              <Text
+                style={[
+                  styles.title,
                   {
-                    data: pcInfo,
-                    color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`, // optional
-                    strokeWidth: 2, // optional
+                    color: 'red',
+                    fontSize: 15,
+                    fontWeight: '500',
+                    justifyContent: 'center',
                   },
-                ],
-                //legend: ["Rainy Days"] // optional
-              }}
-              yAxisSuffix={'KW'}
-              verticalLabelRotation={360 - 30}
-              //horizontalLabelRotation={180}
-              width={screenWidth}
-              height={280}
-              chartConfig={
-                pickerVal[0] === 'Minute' ? chartConfig2 : chartConfig
-              }
-              getDotColor={(dataPoint, dataPointIndex) => {
-                //console.log(currentStatus);
-                if (currentStatus[dataPointIndex] == 'Anomaly')
-                  return '#ff0000';
-                // red
-                else return '#00ff00'; // green
-              }}
-            />
-          </View>
+                ]}>
+                {'No Data from database'}
+              </Text>
+            </View>
+          )}
+
           {/*line title total power usage*/}
           <View
             style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
@@ -598,148 +628,179 @@ const HomeScreen = ({navigation}) => {
             />
           </View>
         </View>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignItems: 'center',
-            alignContent: 'center',
-          }}>
-          <View style={styles.graphWrapper}>
-            <Svg height="160" width="160" viewBox="0 0 180 180">
-              <G rotation={-90} originX="90" originY="90">
-                {progressChartData['total'] === 0 ? (
-                  <Circle
-                    cx="50%"
-                    cy="50%"
-                    r={progressChartData['radius']}
-                    stroke="#F1F6F9"
-                    fill="transparent"
-                    strokeWidth="40"
-                  />
-                ) : (
-                  <>
-                    <Circle
-                      cx="50%"
-                      cy="50%"
-                      r={progressChartData['radius']}
-                      stroke="#f05454"
-                      fill="transparent"
-                      strokeWidth="40"
-                      strokeDasharray={progressChartData['circleCircumference']}
-                      strokeDashoffset={
-                        progressChartData['sensorsStrokeDashoffset'][0]
-                      }
-                      rotation={0}
-                      originX="90"
-                      originY="90"
-                      strokeLinecap="round"
-                    />
-                    <Circle
-                      cx="50%"
-                      cy="50%"
-                      r={progressChartData['radius']}
-                      stroke="#49854f"
-                      fill="transparent"
-                      strokeWidth="40"
-                      strokeDasharray={progressChartData['circleCircumference']}
-                      strokeDashoffset={
-                        progressChartData['sensorsStrokeDashoffset'][1]
-                      }
-                      rotation={progressChartData['sensorsAngle'][0]}
-                      originX="90"
-                      originY="90"
-                      strokeLinecap="round"
-                    />
-                    <Circle
-                      cx="50%"
-                      cy="50%"
-                      r={progressChartData['radius']}
-                      stroke="#133e80"
-                      fill="transparent"
-                      strokeWidth="40"
-                      strokeDasharray={progressChartData['circleCircumference']}
-                      strokeDashoffset={
-                        progressChartData['sensorsStrokeDashoffset'][2]
-                      }
-                      rotation={progressChartData['sensorsAngle'][2]}
-                      originX="90"
-                      originY="90"
-                      strokeLinecap="round"
-                    />
-                  </>
-                )}
-              </G>
-            </Svg>
-            <Text style={styles.label}>
-              {(progressChartData.total / 1000000).toFixed(2) + ' MW'}
-            </Text>
-          </View>
+
+        {/*Donut Chart */}
+        {todayUsageHome ? (
           <View
             style={{
-              justifyContent: 'flex-start',
-              flexDirection: 'column',
-              marginLeft: 20,
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignItems: 'center',
+              alignContent: 'center',
             }}>
-            <View style={{flexDirection: 'row'}}>
-              <View
-                style={[
-                  styles.dot,
-                  {backgroundColor: '#f05454', marginTop: 5},
-                ]}></View>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  color: '#000',
-                  fontWeight: 'bold',
-                  marginLeft: 5,
-                }}>
-                {progressChartData['sensorName'][0] +
-                  ' ' +
-                  progressChartData['Percentage'][0] +
-                  '%'}
+            <View style={styles.graphWrapper}>
+              <Svg height="160" width="160" viewBox="0 0 180 180">
+                <G rotation={-90} originX="90" originY="90">
+                  {progressChartData['total'] === 0 ? (
+                    <Circle
+                      cx="50%"
+                      cy="50%"
+                      r={progressChartData['radius']}
+                      stroke="#F1F6F9"
+                      fill="transparent"
+                      strokeWidth="40"
+                    />
+                  ) : (
+                    <>
+                      <Circle
+                        cx="50%"
+                        cy="50%"
+                        r={progressChartData['radius']}
+                        stroke="#f05454"
+                        fill="transparent"
+                        strokeWidth="40"
+                        strokeDasharray={
+                          progressChartData['circleCircumference']
+                        }
+                        strokeDashoffset={
+                          progressChartData['sensorsStrokeDashoffset'][0]
+                        }
+                        rotation={0}
+                        originX="90"
+                        originY="90"
+                        strokeLinecap="round"
+                      />
+                      <Circle
+                        cx="50%"
+                        cy="50%"
+                        r={progressChartData['radius']}
+                        stroke="#49854f"
+                        fill="transparent"
+                        strokeWidth="40"
+                        strokeDasharray={
+                          progressChartData['circleCircumference']
+                        }
+                        strokeDashoffset={
+                          progressChartData['sensorsStrokeDashoffset'][1]
+                        }
+                        rotation={progressChartData['sensorsAngle'][0]}
+                        originX="90"
+                        originY="90"
+                        strokeLinecap="round"
+                      />
+                      <Circle
+                        cx="50%"
+                        cy="50%"
+                        r={progressChartData['radius']}
+                        stroke="#133e80"
+                        fill="transparent"
+                        strokeWidth="40"
+                        strokeDasharray={
+                          progressChartData['circleCircumference']
+                        }
+                        strokeDashoffset={
+                          progressChartData['sensorsStrokeDashoffset'][2]
+                        }
+                        rotation={progressChartData['sensorsAngle'][2]}
+                        originX="90"
+                        originY="90"
+                        strokeLinecap="round"
+                      />
+                    </>
+                  )}
+                </G>
+              </Svg>
+              <Text style={styles.label}>
+                {(progressChartData.total / 1000000).toFixed(2) + ' MW'}
               </Text>
             </View>
-            <View style={{flexDirection: 'row'}}>
-              <View
-                style={[
-                  styles.dot,
-                  {backgroundColor: '#49854f', marginTop: 5},
-                ]}></View>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  color: '#000',
-                  fontWeight: 'bold',
-                  marginLeft: 5,
-                }}>
-                {progressChartData['sensorName'][1] +
-                  ' ' +
-                  progressChartData['Percentage'][1] +
-                  '%'}
-              </Text>
-            </View>
-            <View style={{flexDirection: 'row'}}>
-              <View
-                style={[
-                  styles.dot,
-                  {backgroundColor: '#133e80', marginTop: 5},
-                ]}></View>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  color: '#000',
-                  fontWeight: 'bold',
-                  marginLeft: 5,
-                }}>
-                {progressChartData['sensorName'][2] +
-                  ' ' +
-                  progressChartData['Percentage'][2] +
-                  '%'}
-              </Text>
+            <View
+              style={{
+                justifyContent: 'flex-start',
+                flexDirection: 'column',
+                marginLeft: 20,
+              }}>
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={[
+                    styles.dot,
+                    {backgroundColor: '#f05454', marginTop: 5},
+                  ]}></View>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    color: '#000',
+                    fontWeight: 'bold',
+                    marginLeft: 5,
+                  }}>
+                  {progressChartData['sensorName'][0] +
+                    ' ' +
+                    progressChartData['Percentage'][0] +
+                    '%'}
+                </Text>
+              </View>
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={[
+                    styles.dot,
+                    {backgroundColor: '#49854f', marginTop: 5},
+                  ]}></View>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    color: '#000',
+                    fontWeight: 'bold',
+                    marginLeft: 5,
+                  }}>
+                  {progressChartData['sensorName'][1] +
+                    ' ' +
+                    progressChartData['Percentage'][1] +
+                    '%'}
+                </Text>
+              </View>
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={[
+                    styles.dot,
+                    {backgroundColor: '#133e80', marginTop: 5},
+                  ]}></View>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    color: '#000',
+                    fontWeight: 'bold',
+                    marginLeft: 5,
+                  }}>
+                  {progressChartData['sensorName'][2] +
+                    ' ' +
+                    progressChartData['Percentage'][2] +
+                    '%'}
+                </Text>
+              </View>
             </View>
           </View>
-        </View>
+        ) : (
+          <View
+            style={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginTop: 50,
+              marginBottom: 50,
+            }}>
+            <Text
+              style={[
+                styles.title,
+                {
+                  color: 'red',
+                  fontSize: 15,
+                  fontWeight: '500',
+                  justifyContent: 'center',
+                },
+              ]}>
+              {'No Data from database'}
+            </Text>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

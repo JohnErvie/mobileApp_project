@@ -214,13 +214,18 @@ const AnomalyRecordScreen = () => {
     <>
       <View style={styles.center}>
         <SafeAreaView style={styles.container}>
-          <View style={{marginBottom: 20}}>
+          <View
+            style={{
+              marginBottom: 20,
+              marginLeft: 20,
+              marginRight: 20,
+            }}>
             <TouchableOpacity
               onPress={() => {
                 setVisible(true);
               }}>
-              <View style={styles.buttonTO}>
-                <View style={{marginRight: 20, marginLeft: 85}}>
+              <View style={[styles.buttonTO, {justifyContent: 'center'}]}>
+                <View style={{marginRight: 10, marginLeft: 10}}>
                   <Ionicons name="filter-sharp" size={24} color="black" />
                 </View>
 
