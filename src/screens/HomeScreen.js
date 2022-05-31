@@ -32,6 +32,8 @@ import Svg, {G, Circle} from 'react-native-svg';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const screenWidth = Dimensions.get('window').width;
 
 //Global Vars
@@ -65,9 +67,15 @@ const HomeScreen = ({navigation}) => {
     todayUsage,
     checkingData,
 
-    getDataUsage,
     progressChartData,
+
+    tmpDateTime,
+    setTmpDateTime,
+
+    getDataUsageHome,
   } = useContext(AuthContext);
+
+  const [resetToCurTime, setResetToCurTime] = useState('1'); //for date and time
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -75,9 +83,7 @@ const HomeScreen = ({navigation}) => {
       const fetchData = async () => {
         //you async action is here
         if (componentMounted) {
-          //displayGraphRadio(radioValue[0]);
-          //=getDataUsage('day');
-          //detectAnomaly();
+          getResetCurDTime();
         }
       };
       fetchData();
@@ -119,8 +125,9 @@ const HomeScreen = ({navigation}) => {
     setRefreshing(true);
     wait(0).then(() => {
       setRefreshing(false);
+
       //displayGraphRadio(radioValue[0]);
-      //getDataUsage('day');
+      getResetCurDTime();
     });
   }, []);
 
@@ -129,12 +136,11 @@ const HomeScreen = ({navigation}) => {
   const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState('date');
   const [show, setShow] = useState(false);
-  const [text, setText] = useState(date);
 
   var splitDate = curDate.toLocaleString().split(' ');
   splitDate = splitDate.filter(v => v !== '');
-  const [selectedTime, setSelectedTime] = useState('');
-  const [selectedDate, setSelectedDate] = '';
+  const [selectedDateTime, setSelectedDateTime] = useState('');
+
   const [titleDate, setTitleDate] = useState(
     splitDate[1] +
       ' ' +
@@ -151,20 +157,10 @@ const HomeScreen = ({navigation}) => {
     setDate(currentDate);
 
     let tempDate = new Date(currentDate);
-    let fDate =
-      tempDate.getFullYear() +
-      '-' +
-      tempDate.getMonth() +
-      '-' +
-      tempDate.getDate();
-    let fTime = tempDate.getHours() + ':' + tempDate.getMinutes();
-    setText(fDate + ' ' + fTime);
 
     var monthName = tempDate.toLocaleString().split(' ');
 
     monthName = monthName.filter(v => v !== '');
-
-    console.log(moment(tempDate).format('YYYY-MM-DD hh:mm A'));
 
     //console.log(monthName);
     setTitleDate(
@@ -177,12 +173,76 @@ const HomeScreen = ({navigation}) => {
         monthName[3],
     );
 
+    let selectedDateTime = gettingDateTime(currentDate);
+    //console.log(selectedDateTime);
+    setSelectedDateTime(selectedDateTime);
+    AsyncStorage.setItem('selectedDateTime', selectedDateTime);
+
+    let resetToCurTime = '0';
+    setResetToCurTime(resetToCurTime);
+    AsyncStorage.setItem('resetToCurTime', resetToCurTime);
+
+    getSelectedDateTime();
     //console.log(titleDate);
   };
 
   const showMode = currentMode => {
     setShow(true);
     setMode(currentMode);
+  };
+
+  const gettingDateTime = currentDate => {
+    let tempDate = new Date(currentDate);
+    let fDate =
+      tempDate.getFullYear() +
+      '-' +
+      String(parseInt(tempDate.getMonth()) + 1) +
+      '-' +
+      tempDate.getDate();
+    let fTime = tempDate.getHours() + ':' + tempDate.getMinutes();
+    return fDate + ' ' + fTime;
+  };
+
+  const getSelectedDateTime = async () => {
+    try {
+      let selectedDateTime = await AsyncStorage.getItem('selectedDateTime');
+
+      if (selectedDateTime) {
+        setSelectedDateTime(selectedDateTime);
+        console.log(selectedDateTime);
+        AsyncStorage.setItem('dateNtime', String(selectedDateTime));
+        displayGraphRadio(radioValue[0], String(selectedDateTime));
+
+        getDataUsageHome('day', String(selectedDateTime));
+      }
+    } catch (e) {
+      console.log(`error ${e}`);
+    }
+  };
+
+  const getResetCurDTime = async () => {
+    try {
+      let resetToCurTime = await AsyncStorage.getItem('resetToCurTime');
+
+      setResetToCurTime(resetToCurTime);
+      //console.log(resetToCurTime);
+      if (resetToCurTime == '1') {
+        let newDate = new Date();
+        //console.log(newDate.getMonth());
+        let dateNtime = gettingDateTime(newDate);
+        //console.log(dateNtime);
+
+        AsyncStorage.setItem('dateNtime', String(dateNtime));
+
+        displayGraphRadio(radioValue[0], String(dateNtime));
+        getDataUsageHome('day', String(dateNtime));
+      } else {
+        //console.log('selected time', selectedDateTime);
+        getSelectedDateTime();
+      }
+    } catch (e) {
+      console.log(`error ${e}`);
+    }
   };
 
   return (
@@ -262,6 +322,23 @@ const HomeScreen = ({navigation}) => {
                   <AntDesign name="edit" size={24} color="black" />
                 </View>
                 <Text style={styles.buttonText}>{'Time'}</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+          <View style={{marginBottom: 20}}>
+            <TouchableOpacity
+              onPress={() => {
+                let resetToCurTime = '1';
+                setResetToCurTime(resetToCurTime);
+                AsyncStorage.setItem('resetToCurTime', resetToCurTime);
+              }}>
+              <View style={styles.button}>
+                <View style={{marginRight: 10, marginLeft: 10}}>
+                  <AntDesign name="edit" size={24} color="black" />
+                </View>
+                <Text style={styles.buttonText}>
+                  {'Reset To Current Date and Time'}
+                </Text>
               </View>
             </TouchableOpacity>
           </View>

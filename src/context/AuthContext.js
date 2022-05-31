@@ -65,6 +65,23 @@ export const AuthProvider = ({children}) => {
     circleCircumference: 2 * Math.PI * 70,
   });
 
+  //for selecting date and time
+  const gettingDateTimeAuth = currentDate => {
+    let tempDate = new Date(currentDate);
+    let fDate =
+      tempDate.getFullYear() +
+      '-' +
+      String(parseInt(tempDate.getMonth()) + 1) +
+      '-' +
+      tempDate.getDate();
+    let fTime = tempDate.getHours() + ':' + tempDate.getMinutes();
+    return fDate + ' ' + fTime;
+  };
+
+  const [tmpDateTime, setTmpDateTime] = useState(
+    gettingDateTimeAuth(new Date()),
+  );
+
   //function to convert from 24 hr to 12 hr format
   function tConvert(time) {
     // Check correct time format and split into components
@@ -102,19 +119,29 @@ export const AuthProvider = ({children}) => {
     return `${ordinal[week - 1]}`;
   }
 
+  const gettingDateNTime = async () => {
+    try {
+      let dateNTime = await AsyncStorage.getItem('dateNtime');
+
+      setTmpDateTime(dateNTime);
+      //console.log(resetToCurTime);
+
+      displayGraphRadio(radioValue[0], String(dateNTime));
+    } catch (e) {
+      console.log(`error ${e}`);
+    }
+  };
+
   const displayTime = option => {
     pickerVal[0] = option;
     setPickerVal(pickerVal);
-    displayGraphRadio(radioValue[0]);
-    //console.log(pickerVal);
-    //console.log('LOOP??' + pickerVal);
+    gettingDateNTime();
   };
 
   const getDataRadio = value => {
     radioValue[0] = value['label'];
     setRadioValue(radioValue);
-    displayGraphRadio(radioValue[0]);
-    //console.log(radioValue);
+    gettingDateNTime();
   };
 
   //store the ip_address
@@ -154,31 +181,32 @@ export const AuthProvider = ({children}) => {
     //navigation.navigate('Password');
   };
 
-  const displayGraph = (Val, rpi, sensor) => {
-    //console.log(pickerVal);
+  const displayGraph = (Val, rpi, sensor, datetime) => {
+    //console.log(datetime);
     if (Val == 'Minute') {
-      return getData(rpi, sensor, 'minute(datetime)');
+      return getData(rpi, sensor, 'minute(datetime)', datetime);
     } else if (Val == 'Hour') {
-      return getData(rpi, sensor, 'hour(datetime)');
+      return getData(rpi, sensor, 'hour(datetime)', datetime);
     } else if (Val == 'Week') {
-      return getData(rpi, sensor, 'week(datetime)');
+      return getData(rpi, sensor, 'week(datetime)', datetime);
     } else if (Val == 'Month') {
-      return getData(rpi, sensor, 'month(datetime)');
+      return getData(rpi, sensor, 'month(datetime)', datetime);
     }
   };
 
-  const displayGraphRadio = radioVal => {
+  const displayGraphRadio = (radioVal, datetime) => {
+    //console.log('?????', datetime);
     if (radioVal == 'Summary') {
-      displayGraph(pickerVal[0], rpiInfo.rpi_id, '0');
+      displayGraph(pickerVal[0], rpiInfo.rpi_id, '0', datetime);
       //console.log(rpiInfo.rpi_id);
     } else if (radioVal == sensorInfo.sensor1) {
-      displayGraph(pickerVal[0], '0', 'Sensor 1');
+      displayGraph(pickerVal[0], '0', 'Sensor 1', datetime);
     } else if (radioVal == sensorInfo.sensor2) {
-      displayGraph(pickerVal[0], '0', 'Sensor 2');
+      displayGraph(pickerVal[0], '0', 'Sensor 2', datetime);
     } else if (radioVal == sensorInfo.sensor3) {
-      displayGraph(pickerVal[0], '0', 'Sensor 3');
+      displayGraph(pickerVal[0], '0', 'Sensor 3', datetime);
     } else if (radioVal == sensorInfo.sensor4) {
-      displayGraph(pickerVal[0], '0', 'Sensor 4');
+      displayGraph(pickerVal[0], '0', 'Sensor 4', datetime);
     }
   };
 
@@ -218,7 +246,7 @@ export const AuthProvider = ({children}) => {
       });
   };
 
-  const getData = (rpi, sensor, time) => {
+  const getData = (rpi, sensor, time, datetime) => {
     //console.log(rpiInfo.rpi_id);
 
     var InsertAPIURL = `${BASE_URL}/pc_data.php`;
@@ -232,6 +260,7 @@ export const AuthProvider = ({children}) => {
       rpi_id: rpi, //rpiInfo.rpi_id
       sensor_no: sensor,
       time: time,
+      datetime: datetime,
     };
 
     fetch(InsertAPIURL, {
@@ -242,7 +271,7 @@ export const AuthProvider = ({children}) => {
       .then(response => response.json())
       .then(response => {
         //alert(response[0].power_consumption);
-        //console.log(response[0].power_consumption);
+        console.log('dsadasadsadas', datetime);
 
         var dataPC = [];
         var dataTime = [];
@@ -393,6 +422,150 @@ export const AuthProvider = ({children}) => {
     var Data = {
       rpi_id: rpiInfo.rpi_id, //
       time: time,
+    };
+
+    fetch(InsertAPIURL, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(Data),
+    })
+      .then(response => response.json())
+      .then(response => {
+        //alert(response[0].power_consumption);
+        //console.log(response[0].Summary);
+        //console.log(response[0].Summary.length);
+        //console.log(response[0].Usage[0]);
+        if (response[0].Summary.length <= 0) {
+          var dataUsage = null;
+
+          //console.log(dataUsage);
+          if (time == 'day') {
+            todayUsage = dataUsage;
+            setTodayUsage(todayUsage);
+            //return todayUsage;
+          } else if (time == 'week') {
+            weekUsage = dataUsage;
+            setWeekUsage(weekUsage);
+
+            //return weekUsage;
+          } else if (time == 'month') {
+            monthUsage = dataUsage;
+            setMonthUsage(monthUsage);
+
+            //return monthUsage;
+          }
+        } else {
+          var Summary = parseFloat(
+            response[0].Summary[0]['sum(power_consumption)'],
+          );
+          var dataUsage = response[0].Usage;
+
+          var usagelength = dataUsage.length;
+
+          for (let x = 0; x < usagelength; x++) {
+            dataUsage[x]['Percentage'] = String(
+              (
+                (parseFloat(dataUsage[x]['sum(power_consumption)']) / Summary) *
+                100
+              ).toFixed(2),
+            ); //adding the usage percentage
+            dataUsage[x]['Total'] = String(Summary);
+            dataUsage[x]['id'] = String(x);
+          }
+
+          //console.log(dataUsage);
+          if (time == 'day') {
+            todayUsage = dataUsage;
+            setTodayUsage(todayUsage);
+
+            var tmpSensorName = [];
+            var tmpSensors = [];
+            var tmpTotal = 0;
+            var tmpPercentage = [];
+            var tmpStrokeDashoffset = [];
+            var tmpAngle = [];
+
+            var radius = 70;
+            var circleCircumference = 2 * Math.PI * radius;
+
+            progressChartData.radius = radius;
+            progressChartData.circleCircumference = circleCircumference;
+
+            for (let i = 0; i < todayUsage.length; i++) {
+              tmpSensorName.push(todayUsage[i]['sname']);
+              tmpSensors.push(
+                parseFloat(todayUsage[i]['sum(power_consumption)']),
+              );
+              tmpTotal =
+                tmpTotal + parseFloat(todayUsage[i]['sum(power_consumption)']);
+              tmpPercentage.push(
+                parseFloat(
+                  parseFloat(parseFloat(todayUsage[i]['Percentage'])).toFixed(
+                    2,
+                  ),
+                ),
+              );
+              tmpStrokeDashoffset.push(
+                circleCircumference -
+                  (circleCircumference *
+                    parseFloat(parseFloat(todayUsage[i]['Percentage'])).toFixed(
+                      2,
+                    )) /
+                    100,
+              );
+              tmpAngle.push(
+                (parseFloat(todayUsage[i]['sum(power_consumption)']) /
+                  parseFloat(todayUsage[i]['Total'])) *
+                  360,
+              );
+            }
+
+            progressChartData.sensorName = tmpSensorName;
+            progressChartData.valSensors = tmpSensors;
+            progressChartData.total = parseFloat(tmpTotal);
+            progressChartData.Percentage = tmpPercentage;
+            progressChartData.sensorsStrokeDashoffset = tmpStrokeDashoffset;
+
+            tmpAngle[2] = tmpAngle[0] + tmpAngle[1];
+            progressChartData.sensorsAngle = tmpAngle;
+
+            setProgressChartData(progressChartData);
+
+            //console.log(progressChartData);
+            //return todayUsage;
+          } else if (time == 'week') {
+            weekUsage = dataUsage;
+            setWeekUsage(weekUsage);
+
+            //return weekUsage;
+          } else if (time == 'month') {
+            monthUsage = dataUsage;
+            setMonthUsage(monthUsage);
+
+            //return monthUsage;
+          }
+          //console.log(todayUsage);
+        }
+      })
+      .catch(error => {
+        console.log(`getting data error ${error}`);
+      });
+  };
+
+  const getDataUsageHome = (time, datetime) => {
+    //console.log(rpiInfo.rpi_id);
+
+    var InsertAPIURL = `${BASE_URL}/get_data_usage_home.php`;
+
+    var headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    };
+
+    var Data = {
+      rpi_id: rpiInfo.rpi_id, //
+      time: time,
+      datetime: datetime,
     };
 
     fetch(InsertAPIURL, {
@@ -956,6 +1129,9 @@ export const AuthProvider = ({children}) => {
 
         progressChartData,
 
+        tmpDateTime,
+        setTmpDateTime,
+
         storeIp_address,
         logout,
         getData,
@@ -976,6 +1152,8 @@ export const AuthProvider = ({children}) => {
         sensorName,
 
         checkingData,
+
+        getDataUsageHome,
       }}>
       {children}
     </AuthContext.Provider>
