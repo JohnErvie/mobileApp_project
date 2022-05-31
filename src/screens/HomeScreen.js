@@ -18,7 +18,14 @@ import {Picker} from '@react-native-picker/picker';
 
 import PushNotification from 'react-native-push-notification';
 //import Icon from 'react-native-vector-icons/FontAwesome';
-import {AntDesign, Feather, Entypo} from '@expo/vector-icons';
+import {
+  AntDesign,
+  Feather,
+  Entypo,
+  MaterialIcons,
+  Ionicons,
+  FontAwesome,
+} from '@expo/vector-icons';
 import RadioButtonRN from 'radio-buttons-react-native';
 import {RadioButton} from 'react-native-paper';
 
@@ -76,6 +83,22 @@ const HomeScreen = ({navigation}) => {
   } = useContext(AuthContext);
 
   const [resetToCurTime, setResetToCurTime] = useState('1'); //for date and time
+
+  //function to convert from 24 hr to 12 hr format
+  function tConvert(time) {
+    // Check correct time format and split into components
+    time = time
+      .toString()
+      .match(/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [time];
+
+    if (time.length > 1) {
+      // If time format correct
+      time = time.slice(1); // Remove full string match value
+      time[5] = +time[0] < 12 ? 'AM' : 'PM'; // Set AM/PM
+      time[0] = +time[0] % 12 || 12; // Adjust hours
+    }
+    return time.join(''); // return adjusted time or original string
+  }
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -141,6 +164,8 @@ const HomeScreen = ({navigation}) => {
   splitDate = splitDate.filter(v => v !== '');
   const [selectedDateTime, setSelectedDateTime] = useState('');
 
+  let convertedTime = tConvert(splitDate[3]);
+
   const [titleDate, setTitleDate] = useState(
     splitDate[1] +
       ' ' +
@@ -148,7 +173,7 @@ const HomeScreen = ({navigation}) => {
       ', ' +
       splitDate[4] +
       ' ' +
-      splitDate[3],
+      convertedTime,
   );
 
   const onChange = (event, selectedDate) => {
@@ -163,6 +188,10 @@ const HomeScreen = ({navigation}) => {
     monthName = monthName.filter(v => v !== '');
 
     //console.log(monthName);
+    let converted = tConvert(monthName[3]);
+    //console.log(converted);
+
+    //console.log(monthName);
     setTitleDate(
       monthName[1] +
         ' ' +
@@ -170,7 +199,7 @@ const HomeScreen = ({navigation}) => {
         ', ' +
         tempDate.getFullYear() +
         ' ' +
-        monthName[3],
+        converted,
     );
 
     let selectedDateTime = gettingDateTime(currentDate);
@@ -209,7 +238,7 @@ const HomeScreen = ({navigation}) => {
 
       if (selectedDateTime) {
         setSelectedDateTime(selectedDateTime);
-        console.log(selectedDateTime);
+        //console.log(selectedDateTime);
         AsyncStorage.setItem('dateNtime', String(selectedDateTime));
         displayGraphRadio(radioValue[0], String(selectedDateTime));
 
@@ -227,6 +256,26 @@ const HomeScreen = ({navigation}) => {
       setResetToCurTime(resetToCurTime);
       //console.log(resetToCurTime);
       if (resetToCurTime == '1') {
+        let tempDate = new Date();
+
+        var monthName = tempDate.toLocaleString().split(' ');
+
+        monthName = monthName.filter(v => v !== '');
+
+        let converted = tConvert(monthName[3]);
+        //console.log(converted);
+
+        //console.log(monthName);
+        setTitleDate(
+          monthName[1] +
+            ' ' +
+            tempDate.getDate() +
+            ', ' +
+            tempDate.getFullYear() +
+            ' ' +
+            converted,
+        );
+
         let newDate = new Date();
         //console.log(newDate.getMonth());
         let dateNtime = gettingDateTime(newDate);
@@ -287,57 +336,109 @@ const HomeScreen = ({navigation}) => {
             />
           </View>
 
-          {/*drop down menu, minutes, hour, week, month*/}
-          <Picker
-            style={{height: 50, width: 150, color: '#000'}}
-            dropdownIconColor="black"
-            onValueChange={displayTime}
-            selectedValue={pickerVal[0]}>
-            <Picker.Item label="Minute" value="Minute" />
-            <Picker.Item label="Hour" value="Hour" />
-            <Picker.Item label="Week" value="Week" />
-            <Picker.Item label="Month" value="Month" />
-          </Picker>
+          {/*line Change date Title*/}
+          <View
+            style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
+            <View
+              style={{
+                flex: 1,
+                height: 2,
+                backgroundColor: '#6b6c6e',
+                marginLeft: 20,
+                marginRight: 10,
+              }}
+            />
+            <View>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  color: '#6b6c6e',
+                  fontWeight: 'bold',
+                  marginBottom: 5,
+                }}>
+                {'Change Specific Date'}
+              </Text>
+            </View>
+            <View
+              style={{
+                flex: 1,
+                height: 2,
+                backgroundColor: '#6b6c6e',
+                marginLeft: 10,
+                marginRight: 20,
+              }}
+            />
+          </View>
 
-          <View style={{marginBottom: 20}}>
-            <TouchableOpacity
-              onPress={() => {
-                showMode('date');
-              }}>
-              <View style={styles.button}>
-                <View style={{marginRight: 10, marginLeft: 10}}>
-                  <AntDesign name="edit" size={24} color="black" />
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginLeft: 20,
+              marginRight: 20,
+            }}>
+            <View style={{marginBottom: 20}}>
+              <TouchableOpacity
+                onPress={() => {
+                  showMode('date');
+                }}>
+                <View style={styles.button}>
+                  <View style={{marginRight: 10, marginLeft: 10, width: '25%'}}>
+                    <MaterialIcons name="date-range" size={24} color="black" />
+                  </View>
+                  <Text style={styles.buttonText}>{'Date'}</Text>
                 </View>
-                <Text style={styles.buttonText}>{'Date'}</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-          <View style={{marginBottom: 20}}>
-            <TouchableOpacity
-              onPress={() => {
-                showMode('time');
-              }}>
-              <View style={styles.button}>
-                <View style={{marginRight: 10, marginLeft: 10}}>
-                  <AntDesign name="edit" size={24} color="black" />
+              </TouchableOpacity>
+            </View>
+            <View style={{marginBottom: 20}}>
+              <TouchableOpacity
+                onPress={() => {
+                  showMode('time');
+                }}>
+                <View style={styles.button}>
+                  <View style={{marginRight: 10, marginLeft: 10, width: '25%'}}>
+                    <Ionicons name="time" size={24} color="black" />
+                  </View>
+                  <Text style={styles.buttonText}>{'Time'}</Text>
                 </View>
-                <Text style={styles.buttonText}>{'Time'}</Text>
-              </View>
-            </TouchableOpacity>
+              </TouchableOpacity>
+            </View>
           </View>
-          <View style={{marginBottom: 20}}>
+
+          <View style={{marginBottom: 10, marginLeft: 20, marginRight: 20}}>
             <TouchableOpacity
               onPress={() => {
+                let tempDate = new Date();
+
+                var monthName = tempDate.toLocaleString().split(' ');
+
+                monthName = monthName.filter(v => v !== '');
+
+                let converted = tConvert(monthName[3]);
+                //console.log(converted);
+
+                //console.log(monthName);
+                setTitleDate(
+                  monthName[1] +
+                    ' ' +
+                    tempDate.getDate() +
+                    ', ' +
+                    tempDate.getFullYear() +
+                    ' ' +
+                    converted,
+                );
+
                 let resetToCurTime = '1';
                 setResetToCurTime(resetToCurTime);
                 AsyncStorage.setItem('resetToCurTime', resetToCurTime);
               }}>
               <View style={styles.button}>
                 <View style={{marginRight: 10, marginLeft: 10}}>
-                  <AntDesign name="edit" size={24} color="black" />
+                  <FontAwesome name="undo" size={24} color="black" />
                 </View>
                 <Text style={styles.buttonText}>
-                  {'Reset To Current Date and Time'}
+                  {'Reset To Current DateTime'}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -384,6 +485,23 @@ const HomeScreen = ({navigation}) => {
                 marginRight: 20,
               }}
             />
+          </View>
+
+          {/*drop down menu, minutes, hour, week, month*/}
+          <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+            <Text style={[styles.buttonText, {marginTop: 15}]}>
+              {'Show By: '}
+            </Text>
+            <Picker
+              style={{height: 20, width: 150, color: '#000'}}
+              dropdownIconColor="black"
+              onValueChange={displayTime}
+              selectedValue={pickerVal[0]}>
+              <Picker.Item label="Minute" value="Minute" />
+              <Picker.Item label="Hour" value="Hour" />
+              <Picker.Item label="Week" value="Week" />
+              <Picker.Item label="Month" value="Month" />
+            </Picker>
           </View>
 
           {/*For normal dot and anomaly dot*/}
@@ -654,6 +772,16 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#000',
     fontWeight: 'bold',
+  },
+  button: {
+    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 10,
+    backgroundColor: '#ffffff',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    borderColor: '#000',
+    borderWidth: 1,
   },
   buttonText: {
     color: 'black',

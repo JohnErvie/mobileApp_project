@@ -96,7 +96,7 @@ const AnomalyRecordScreen = () => {
       filterData = JSON.parse(filterData);
       if (filterData) {
         setFilterData(filterData);
-        console.log(filterData);
+        //console.log(filterData);
         getAnomalyData(
           filterData.Sort,
           filterData.Date,
@@ -224,7 +224,7 @@ const AnomalyRecordScreen = () => {
                   <Ionicons name="filter-sharp" size={24} color="black" />
                 </View>
 
-                <Text style={styles.buttonText}>{'Search Filer'}</Text>
+                <Text style={styles.buttonText}>{'Search Filter'}</Text>
               </View>
             </TouchableOpacity>
           </View>

@@ -271,7 +271,7 @@ export const AuthProvider = ({children}) => {
       .then(response => response.json())
       .then(response => {
         //alert(response[0].power_consumption);
-        console.log('dsadasadsadas', datetime);
+        //console.log(datetime);
 
         var dataPC = [];
         var dataTime = [];
