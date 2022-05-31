@@ -10,6 +10,7 @@ import {
   Platform,
   Dimensions,
   TouchableOpacity,
+  Switch,
 } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import {AuthContext} from '../context/AuthContext';
@@ -85,6 +86,35 @@ const HomeScreen = ({navigation}) => {
     todayUsageHome,
   } = useContext(AuthContext);
 
+  //for switch
+  const [isEnabledNotif, setIsEnabledNotif] = useState(true);
+  var [currentStateNotif, setCurrentStateNotif] = useState([1]);
+  const toggleSwitchNotif = () => {
+    setIsEnabledNotif(previousStateNotif => !previousStateNotif);
+    if (!isEnabledNotif == true) {
+      currentStateNotif[0] = 1;
+    } else {
+      currentStateNotif[0] = 0;
+    }
+
+    console.log(!isEnabledNotif);
+  };
+
+  const [isEnabledAutoRef, setIsEnabledAutoRef] = useState(true);
+  var [currentStateAutoRef, setCurrentStateAutoRef] = useState([1]);
+  const toggleSwitchAutoRef = () => {
+    setIsEnabledAutoRef(previousStateAutoRef => !previousStateAutoRef);
+    if (!isEnabledAutoRef == true) {
+      currentStateAutoRef[0] = 1;
+      //setCurrentStateAutoRef(currentStateAutoRef[0]);
+    } else {
+      currentStateAutoRef[0] = 0;
+      //setCurrentStateAutoRef(currentStateAutoRef[0]);
+    }
+
+    //console.log(!isEnabledAutoRef);
+  };
+
   const [resetToCurTime, setResetToCurTime] = useState('1'); //for date and time
 
   //function to convert from 24 hr to 12 hr format
@@ -109,7 +139,7 @@ const HomeScreen = ({navigation}) => {
       const fetchData = async () => {
         //you async action is here
         if (componentMounted) {
-          getResetCurDTime();
+          isAutoRefresh();
         }
       };
       fetchData();
@@ -123,7 +153,8 @@ const HomeScreen = ({navigation}) => {
       const fetchDataDetection = async () => {
         //you async action is here
         if (componentMountedDetection) {
-          detectAnomaly(); // notification when anomaly detected
+          isAnomalyNotif();
+          //detectAnomaly(); // notification when anomaly detected
           //getDataInfoUsage('day', 'Sensor 1');
           //console.log(timeUsage, infoUsage);
         }
@@ -288,9 +319,37 @@ const HomeScreen = ({navigation}) => {
 
         displayGraphRadio(radioValue[0], String(dateNtime));
         getDataUsageHome('day', String(dateNtime));
+
+        //console.log(isEnabledAutoRef);
       } else {
         //console.log('selected time', selectedDateTime);
         getSelectedDateTime();
+      }
+    } catch (e) {
+      console.log(`error ${e}`);
+    }
+  };
+
+  const isAutoRefresh = () => {
+    try {
+      if (currentStateAutoRef[0] == 1) {
+        //console.log('Refresh On');
+        getResetCurDTime();
+      } else {
+        //console.log('auto refresh is off');
+      }
+    } catch (e) {
+      console.log(`error ${e}`);
+    }
+  };
+
+  const isAnomalyNotif = () => {
+    try {
+      if (currentStateNotif[0] == 1) {
+        //console.log('anomaly notification is On');
+        detectAnomaly(); // notification when anomaly detected
+      } else {
+        //console.log('anomaly notification is Off');
       }
     } catch (e) {
       console.log(`error ${e}`);
@@ -337,6 +396,58 @@ const HomeScreen = ({navigation}) => {
               circleSize={16}
               icon={<AntDesign name="checkcircle" size={22} color="black" />}
             />
+          </View>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              marginBottom: 10,
+            }}>
+            <Text
+              style={{
+                marginLeft: 20,
+                marginTop: 10,
+                color: 'black',
+                fontWeight: 'bold',
+                fontSize: 18,
+                textAlign: 'center',
+              }}>
+              {'Anomaly Notification '}
+            </Text>
+            <View style={{marginTop: 10, marginRight: 30}}>
+              <Switch
+                trackColor={{false: '#767577', true: '#81b0ff'}}
+                thumbColor={isEnabledNotif ? '#000000' : '#f4f3f4'}
+                ios_backgroundColor="#3e3e3e"
+                onValueChange={toggleSwitchNotif}
+                value={isEnabledNotif}
+              />
+            </View>
+          </View>
+
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <Text
+              style={{
+                marginLeft: 20,
+                marginTop: 10,
+                color: 'black',
+                fontWeight: 'bold',
+                fontSize: 18,
+                textAlign: 'center',
+              }}>
+              {'Auto Refresh '}
+            </Text>
+
+            <View style={{marginTop: 10, marginRight: 30}}>
+              <Switch
+                trackColor={{false: '#767577', true: '#81b0ff'}}
+                thumbColor={isEnabledAutoRef ? '#000000' : '#f4f3f4'}
+                ios_backgroundColor="#3e3e3e"
+                onValueChange={toggleSwitchAutoRef}
+                value={isEnabledAutoRef}
+              />
+            </View>
           </View>
 
           {/*line Change date Title*/}
