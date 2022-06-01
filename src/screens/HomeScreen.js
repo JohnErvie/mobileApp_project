@@ -366,7 +366,9 @@ const HomeScreen = ({navigation}) => {
           <Spinner visible={setIsLoading} />
           {/* <Text style={styles.welcome}>{rpiInfo.ip_address}</Text> */}
           <View style={{justifyContent: 'center', alignItems: 'center'}}>
-            <Text style={styles.welcome}>Power Consumption Data</Text>
+            <Text style={[styles.welcome, {fontWeight: 'bold'}]}>
+              Power Consumption Data
+            </Text>
           </View>
           <View>
             {/*radio button for specific location of sensor*/}
@@ -396,58 +398,6 @@ const HomeScreen = ({navigation}) => {
               circleSize={16}
               icon={<AntDesign name="checkcircle" size={22} color="black" />}
             />
-          </View>
-
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              marginBottom: 10,
-            }}>
-            <Text
-              style={{
-                marginLeft: 20,
-                marginTop: 10,
-                color: 'black',
-                fontWeight: 'bold',
-                fontSize: 18,
-                textAlign: 'center',
-              }}>
-              {'Anomaly Notification '}
-            </Text>
-            <View style={{marginTop: 10, marginRight: 30}}>
-              <Switch
-                trackColor={{false: '#767577', true: '#81b0ff'}}
-                thumbColor={isEnabledNotif ? '#000000' : '#f4f3f4'}
-                ios_backgroundColor="#3e3e3e"
-                onValueChange={toggleSwitchNotif}
-                value={isEnabledNotif}
-              />
-            </View>
-          </View>
-
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Text
-              style={{
-                marginLeft: 20,
-                marginTop: 10,
-                color: 'black',
-                fontWeight: 'bold',
-                fontSize: 18,
-                textAlign: 'center',
-              }}>
-              {'Auto Refresh '}
-            </Text>
-
-            <View style={{marginTop: 10, marginRight: 30}}>
-              <Switch
-                trackColor={{false: '#767577', true: '#81b0ff'}}
-                thumbColor={isEnabledAutoRef ? '#000000' : '#f4f3f4'}
-                ios_backgroundColor="#3e3e3e"
-                onValueChange={toggleSwitchAutoRef}
-                value={isEnabledAutoRef}
-              />
-            </View>
           </View>
 
           {/*line Change date Title*/}
@@ -912,6 +862,91 @@ const HomeScreen = ({navigation}) => {
             </Text>
           </View>
         )}
+        {/*line option Title*/}
+        <View
+          style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
+          <View
+            style={{
+              flex: 1,
+              height: 2,
+              backgroundColor: '#6b6c6e',
+              marginLeft: 20,
+              marginRight: 10,
+            }}
+          />
+          <View>
+            <Text
+              style={{
+                textAlign: 'center',
+                color: '#6b6c6e',
+                fontWeight: 'bold',
+                marginBottom: 5,
+              }}>
+              {'Option'}
+            </Text>
+          </View>
+          <View
+            style={{
+              flex: 1,
+              height: 2,
+              backgroundColor: '#6b6c6e',
+              marginLeft: 10,
+              marginRight: 20,
+            }}
+          />
+        </View>
+
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            marginBottom: 10,
+          }}>
+          <Text
+            style={{
+              marginLeft: 20,
+              marginTop: 10,
+              color: 'black',
+              fontWeight: 'bold',
+              fontSize: 18,
+              textAlign: 'center',
+            }}>
+            {'Anomaly Notification '}
+          </Text>
+          <View style={{marginTop: 10, marginRight: 30}}>
+            <Switch
+              trackColor={{false: '#767577', true: '#81b0ff'}}
+              thumbColor={isEnabledNotif ? '#000000' : '#f4f3f4'}
+              ios_backgroundColor="#3e3e3e"
+              onValueChange={toggleSwitchNotif}
+              value={isEnabledNotif}
+            />
+          </View>
+        </View>
+
+        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+          <Text
+            style={{
+              marginLeft: 20,
+              marginTop: 10,
+              color: 'black',
+              fontWeight: 'bold',
+              fontSize: 18,
+              textAlign: 'center',
+            }}>
+            {'Auto Refresh '}
+          </Text>
+
+          <View style={{marginTop: 10, marginRight: 30}}>
+            <Switch
+              trackColor={{false: '#767577', true: '#81b0ff'}}
+              thumbColor={isEnabledAutoRef ? '#000000' : '#f4f3f4'}
+              ios_backgroundColor="#3e3e3e"
+              onValueChange={toggleSwitchAutoRef}
+              value={isEnabledAutoRef}
+            />
+          </View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

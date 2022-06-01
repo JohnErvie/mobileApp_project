@@ -30,13 +30,16 @@ const MoreScreen = ({navigation}) => {
           </View>
 
           <View style={{marginBottom: 20}}>
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate('About The App');
+              }}>
               <View style={styles.button}>
                 <View style={{marginRight: 10, marginLeft: 10}}>
                   <Entypo name="info-with-circle" size={24} color="black" />
                 </View>
 
-                <Text style={styles.buttonText}>{'About'}</Text>
+                <Text style={styles.buttonText}>{'About The App'}</Text>
               </View>
             </TouchableOpacity>
           </View>
