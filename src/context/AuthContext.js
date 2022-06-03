@@ -861,7 +861,7 @@ export const AuthProvider = ({children}) => {
       .then(response => response.json())
       .then(response => {
         //alert(response[0].Message);
-        //console.log(response[0].Message);
+        //console.log(response[0].Data.length);
         if (response[0].Data != null) {
           let rpiInfo = response[0].Data;
           //console.log(rpiInfo);
@@ -869,6 +869,8 @@ export const AuthProvider = ({children}) => {
           AsyncStorage.setItem('rpiInfo', JSON.stringify(rpiInfo));
           setIsLoading(false);
           //getData();
+        } else {
+          Alert.alert('Error', 'Invalid Password');
         }
       })
       .catch(error => {
@@ -1069,6 +1071,44 @@ export const AuthProvider = ({children}) => {
       });
   };
 
+  const changePassword = password => {
+    console.log(password);
+    var InsertAPIURL = `${BASE_URL}/change_password.php`;
+
+    var headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    };
+
+    var Data = {
+      rpi_id: rpiInfo.rpi_id,
+      password: password,
+    };
+
+    fetch(InsertAPIURL, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(Data),
+    })
+      .then(response => response.json())
+      .then(response => {
+        //alert(response[0].Message);
+        //console.log(response[0].data);
+        toast.show('Password Changed', {
+          type: 'normal',
+          placement: 'bottom',
+          duration: 2000,
+          offset: 30,
+          animationType: 'slide-in | zoom-in',
+        });
+
+        logout();
+      })
+      .catch(error => {
+        console.log(`getting data error ${error}`);
+      });
+  };
+
   const anomalyNotification = (pc, time, location) => {
     PushNotification.localNotification({
       /* Android Only Properties */
@@ -1156,6 +1196,8 @@ export const AuthProvider = ({children}) => {
         checkingData,
 
         getDataUsageHome,
+
+        changePassword,
       }}>
       {children}
     </AuthContext.Provider>

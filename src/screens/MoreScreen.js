@@ -2,7 +2,7 @@ import React, {useContext} from 'react';
 import {View, StyleSheet, Text, Button, TouchableOpacity} from 'react-native';
 import {AuthContext} from '../context/AuthContext';
 
-import {AntDesign, Entypo} from '@expo/vector-icons';
+import {AntDesign, Entypo, MaterialCommunityIcons} from '@expo/vector-icons';
 
 const MoreScreen = ({navigation}) => {
   const {logout, rpiInfo} = useContext(AuthContext);
@@ -40,6 +40,25 @@ const MoreScreen = ({navigation}) => {
                 </View>
 
                 <Text style={styles.buttonText}>{'About The App'}</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          <View style={{marginBottom: 20}}>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate('Change Password');
+              }}>
+              <View style={styles.button}>
+                <View style={{marginRight: 10, marginLeft: 10}}>
+                  <MaterialCommunityIcons
+                    name="key-change"
+                    size={24}
+                    color="black"
+                  />
+                </View>
+
+                <Text style={styles.buttonText}>{'Change Password'}</Text>
               </View>
             </TouchableOpacity>
           </View>

@@ -180,13 +180,9 @@ const ConnectScreen = ({navigation}) => {
             <Button
               title="Connect"
               onPress={() => {
-                if (password === '' || password === null) {
-                  Alert.alert('Error', 'Missing Required Field!');
-                } else {
-                  connectRpi(password);
-                  password = '';
-                  setPassword(password);
-                }
+                connectRpi(password);
+                password = '';
+                setPassword(password);
               }}
             />
           </View>

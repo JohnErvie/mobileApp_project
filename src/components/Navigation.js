@@ -17,6 +17,7 @@ import ScanScreen from '../screens/ScanScreen';
 import AddSensorScreen from '../screens/AddSensorScreen';
 import ChangeSensorScreen from '../screens/ChangeSensorScreen';
 import AboutAppScreen from '../screens/AboutAppScreen';
+import ChangePasswordScreen from '../screens/ChangePasswordScreen';
 import CollectDataScreen from '../screens/CollectDataScreen';
 import {AuthContext} from '../context/AuthContext';
 import SplashScreen from '../screens/SplashScreen';
@@ -273,6 +274,12 @@ const Navigation = () => {
               <Stack.Screen
                 name="About The App"
                 component={AboutAppScreen}
+                options={{headerShown: true}}
+              />
+
+              <Stack.Screen
+                name="Change Password"
+                component={ChangePasswordScreen}
                 options={{headerShown: true}}
               />
             </>
