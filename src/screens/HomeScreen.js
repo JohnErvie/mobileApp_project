@@ -629,6 +629,29 @@ const HomeScreen = ({navigation}) => {
                     // red
                     else return '#00ff00'; // green
                   }}
+                  renderDotContent={({x, y, index}) => {
+                    return (
+                      <View
+                        style={{
+                          height: 12,
+                          width: 24,
+                          opacity: 0.5,
+                          backgroundColor: 'white',
+                          position: 'absolute',
+                          top: y - (12 + 4), // <--- relevant to height / width (
+                          left: x - 12 / 2 - 2, // <--- width / 2
+                        }}>
+                        <Text
+                          style={{
+                            fontSize: 10,
+                            color: 'black',
+                            fontWeight: 'bold',
+                          }}>
+                          {pcInfo[index].toFixed(2)}
+                        </Text>
+                      </View>
+                    );
+                  }}
                 />
               </View>
             </>

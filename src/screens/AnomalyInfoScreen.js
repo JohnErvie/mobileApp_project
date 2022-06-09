@@ -21,15 +21,47 @@ import Svg, {G, Circle} from 'react-native-svg';
 const AnomalyInfoScreen = ({navigation, route}) => {
   const {rpiInfo} = useContext(AuthContext);
 
+  const power = route.params.item.power_consumption;
+
+  const Sensorname = route.params.item.sname;
+
   var origDateTime = route.params.item.datetime;
 
   var splitDate = origDateTime.split(' ');
   var date = splitDate[0] + 'T' + splitDate[1];
   const datetime = new Date(date).toLocaleString();
   var splitedDateTime = datetime.split(' ');
-  const power = route.params.item.power_consumption;
 
-  const Sensorname = route.params.item.sname;
+  splitedDateTime = splitedDateTime.filter(v => v !== '');
+  const [selectedDateTime, setSelectedDateTime] = useState('');
+
+  let convertedTime = tConvert(splitedDateTime[3]);
+
+  const [titleDate, setTitleDate] = useState(
+    splitedDateTime[1] +
+      ' ' +
+      splitedDateTime[2] +
+      ', ' +
+      splitedDateTime[4] +
+      ' ' +
+      convertedTime,
+  );
+
+  // For time
+  function tConvert(time) {
+    // Check correct time format and split into components
+    time = time
+      .toString()
+      .match(/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [time];
+
+    if (time.length > 1) {
+      // If time format correct
+      time = time.slice(1); // Remove full string match value
+      time[5] = +time[0] < 12 ? 'AM' : 'PM'; // Set AM/PM
+      time[0] = +time[0] % 12 || 12; // Adjust hours
+    }
+    return time.join(''); // return adjusted time or original string
+  }
 
   // for donut chart
   const radius = 70;
@@ -244,9 +276,9 @@ const AnomalyInfoScreen = ({navigation, route}) => {
           <View style={styles.usageContainer}>
             <Text style={[styles.usageText, {color: 'red'}]}>
               <Text style={{fontWeight: 'bold', color: '#000', fontSize: 18}}>
-                {'At Power Consumption '}
+                {'With Power Consumption '}
               </Text>
-              {power + ' W'}
+              {parseFloat(parseFloat(power) / 1000).toFixed(2) + ' KW'}
             </Text>
           </View>
 
@@ -268,12 +300,10 @@ const AnomalyInfoScreen = ({navigation, route}) => {
                   color: '#6b6c6e',
                   fontWeight: 'bold',
                 }}>
-                {splitedDateTime[0] +
-                  ' ' +
-                  splitedDateTime[1] +
+                {splitedDateTime[1] +
                   ' ' +
                   splitedDateTime[2] +
-                  ' ' +
+                  ', ' +
                   splitedDateTime[4]}
               </Text>
             </View>
@@ -370,7 +400,7 @@ const AnomalyInfoScreen = ({navigation, route}) => {
                   {splitedDateTime[1] +
                     ' ' +
                     splitedDateTime[2] +
-                    ' ' +
+                    ', ' +
                     splitedDateTime[4]}
                 </Text>
               </View>
@@ -394,12 +424,7 @@ const AnomalyInfoScreen = ({navigation, route}) => {
                   color: '#6b6c6e',
                   fontWeight: 'bold',
                 }}>
-                {'Power Usage ' +
-                  splitedDateTime[1] +
-                  ' ' +
-                  splitedDateTime[2] +
-                  ' ' +
-                  splitedDateTime[4]}
+                {'Power Usage ' + titleDate}
               </Text>
             </View>
             <View
@@ -467,6 +492,29 @@ const AnomalyInfoScreen = ({navigation, route}) => {
                   if (dotUsage[dataPointIndex] == 'Anomaly') return '#ff0000';
                   // red
                   else return '#00ff00'; // green
+                }}
+                renderDotContent={({x, y, index}) => {
+                  return (
+                    <View
+                      style={{
+                        height: 12,
+                        width: 24,
+                        opacity: 0.5,
+                        backgroundColor: 'white',
+                        position: 'absolute',
+                        top: y - (12 + 4), // <--- relevant to height / width (
+                        left: x - 12 / 2 - 2, // <--- width / 2
+                      }}>
+                      <Text
+                        style={{
+                          fontSize: 8,
+                          color: 'black',
+                          fontWeight: 'bold',
+                        }}>
+                        {infoUsage[index].toFixed(2)}
+                      </Text>
+                    </View>
+                  );
                 }}
               />
             </View>
